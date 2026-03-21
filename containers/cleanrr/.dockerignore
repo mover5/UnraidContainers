@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+.env
+.venv/
+venv/
+*.db
+.idea/
+.vscode/
+README.md
+docker-compose.yml
+VERSION
+unraid-template.xml
+icon.png

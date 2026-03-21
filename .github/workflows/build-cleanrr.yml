@@ -1,0 +1,19 @@
+name: Build cleanrr
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/cleanrr/**"
+  pull_request:
+    paths:
+      - "containers/cleanrr/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: cleanrr
+    permissions:
+      contents: read
+      packages: write

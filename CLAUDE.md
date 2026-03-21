@@ -77,5 +77,8 @@ This repo is added as a Template Repository in Unraid's Docker settings. Unraid 
 ### claude-worker
 Dev environment container with Claude Code, Node.js 22, .NET 9, Python 3, GitHub CLI, Azure CLI, and Playwright. Access via SSH on port 2222 + tmux. Originally migrated from the standalone `UnraidClaudeWorker` repo. Supports PUID/PGID remapping, persistent home/repos volumes, and optional SSH password auth.
 
+### cleanrr
+Python-based torrent lifecycle manager for Deluge with a Flask web dashboard (port 9494). Connects to the Deluge Web API, tracks torrents in an SQLite database, and auto-removes them after a configurable seed duration (default 14 days). Features torrent protection, manual removal, countdown timers, and configurable check intervals. Originally migrated from the standalone `Cleanrr` repo.
+
 ### database-backup
 Python-based scheduled database backup tool with a Flask web dashboard (port 8008). Supports MySQL and Azure SQL as backup sources, with Azure Blob/File Share storage. Includes a scheduler that runs backups on cron schedules, state tracking, and a web UI for managing backup sources. Originally migrated from the standalone `UnraidDatabaseBackup` repo. Has a test suite under `tests/`.

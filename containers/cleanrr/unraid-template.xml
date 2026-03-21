@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>mover5:cleanrr</Name>
+  <Repository>ghcr.io/mover5/cleanrr:latest</Repository>
+  <Registry>https://ghcr.io/mover5/cleanrr</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Torrent lifecycle manager for Deluge. Automatically removes torrents after a configurable
+    seed duration, with a web dashboard for monitoring and management.
+  </Overview>
+  <Category>Downloaders:</Category>
+  <Description>
+    Python-based torrent lifecycle manager for Deluge. Connects to Deluge via its Web API,
+    tracks all torrents in a local database, and auto-removes them after a configurable seed
+    time (default 14 days). Features a web dashboard (port 9494) with torrent status, countdown
+    timers, protection from auto-removal, and manual removal. Configurable check interval and
+    seed duration via the UI.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/cleanrr/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="9494" Default="9494" Mode="tcp" Description="Port for the Cleanrr web dashboard" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Environment Variables -->
+  <Config Name="Deluge Host" Target="DELUGE_HOST" Default="localhost" Mode="" Description="Hostname or IP of the Deluge Web UI" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Deluge Port" Target="DELUGE_PORT" Default="8112" Mode="" Description="Port of the Deluge Web UI" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Deluge Password" Target="DELUGE_PASSWORD" Default="deluge" Mode="" Description="Password for the Deluge Web UI" Type="Variable" Display="always" Required="true" Mask="true"/>
+
+  <!-- Volumes -->
+  <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/cleanrr" Mode="rw" Description="Persistent config and database storage" Type="Path" Display="always" Required="true" Mask="false"/>
+</Container>

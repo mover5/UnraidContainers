@@ -30,7 +30,13 @@ docker pull ghcr.io/mover5/claude-worker:1.0.0
 
 ### Unraid
 
-Each container includes an `unraid-template.xml` for use with Unraid's Community Applications. Refer to the container's directory for configuration details.
+To make all containers available in Unraid's Docker tab:
+
+1. Go to **Docker > Template Repositories**
+2. Add: `https://github.com/mover5/UnraidContainers`
+3. Click **Save**
+
+All containers from this repo will appear as available templates. When new containers are added to the repo, they automatically show up in Unraid after the next template update.
 
 ---
 
@@ -50,6 +56,8 @@ containers/
   build-claude-worker.yml   # Triggers on changes to claude-worker/
   build-database-backup.yml # Triggers on changes to database-backup/
   build-all.yml             # Manual trigger to rebuild all containers
+  sync-templates.yml        # Auto-syncs unraid-template.xml files to templates/
+templates/                  # Flat directory of Unraid templates (auto-generated)
 ```
 
 ### Add a new container

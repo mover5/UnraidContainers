@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>DatabaseBackup</Name>
+  <Repository>ghcr.io/mover5/database-backup:latest</Repository>
+  <Registry>https://ghcr.io/mover5/database-backup</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Scheduled database backup tool with a web dashboard. Supports MySQL and Azure SQL
+    as backup sources, with configurable intervals and retention policies. Manage backup
+    sources through the web UI or a JSON config file.
+  </Overview>
+  <Category>Backup:</Category>
+  <Description>
+    Python-based scheduled database backup container supporting MySQL and Azure SQL.
+    Features a Flask web dashboard for managing backup sources, viewing status, and
+    triggering manual backups. Configurable backup intervals and retention policies.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/database-backup/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="8008" Default="8008" Mode="tcp" Description="Port for the web dashboard" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Environment Variables -->
+  <Config Name="Timezone" Target="TZ" Default="America/New_York" Mode="" Description="Container timezone (e.g. America/Chicago, Europe/London)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Web UI Secret Key" Target="SECRET_KEY" Default="" Mode="" Description="Secret key for Flask sessions (auto-generated if blank)" Type="Variable" Display="advanced" Required="false" Mask="true"/>
+
+  <!-- Volumes -->
+  <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/database-backup/config" Mode="rw" Description="Configuration files (servers.json)" Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Backups Directory" Target="/backups" Default="/mnt/user/appdata/database-backup/backups" Mode="rw" Description="Backup output directory" Type="Path" Display="always" Required="true" Mask="false"/>
+</Container>

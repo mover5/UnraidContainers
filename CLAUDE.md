@@ -20,6 +20,9 @@ containers/<name>/           # Each container gets its own directory
   build-<name>.yml           # Per-container workflow — triggers on changes to that container's dir
   build-all.yml              # Manual trigger to rebuild every container
   cleanup-images.yml         # Weekly cleanup of old GHCR image versions
+  sync-templates.yml         # Auto-syncs unraid-template.xml to templates/ on push
+
+templates/                   # Flat directory of Unraid XML templates (auto-generated, do not edit directly)
 
 add-container.sh             # Scaffolding script to create a new container + workflow
 ```
@@ -57,6 +60,10 @@ A `cleanup-images.yml` workflow runs weekly (Sunday 3am UTC) and on manual trigg
 - Keeps 20 most recent tagged versions total, deletes the rest.
 
 Docker layer caching uses GitHub Actions Cache (`type=gha`), which is capped at 10GB per repo and self-manages via LRU eviction. No intermediate artifacts are used — images go straight to GHCR.
+
+## Unraid template registration
+
+This repo is added as a Template Repository in Unraid's Docker settings. Unraid scans the `templates/` directory for XML files. A `sync-templates.yml` workflow auto-copies each container's `unraid-template.xml` into `templates/<name>.xml` whenever a template changes on `main`. Do not edit files in `templates/` directly — edit the source in `containers/<name>/unraid-template.xml`.
 
 ## Important conventions
 

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>ClaudeWorker</Name>
+  <Repository>ghcr.io/mover5/claude-worker:latest</Repository>
+  <Registry>https://ghcr.io/mover5/claude-worker</Registry>
+  <Network>host</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Development workstation with Claude Code, Node.js, .NET, and full dev tooling.
+    Access via SSH + tmux. All repos stored in /repos, config persists in /home/claude.
+    Dev servers are reachable on your LAN via host networking.
+  </Overview>
+  <Category>Productivity: Tools:</Category>
+  <Description>
+    Docker container running Claude Code + full dev environment (Node.js 22, .NET 8, Python 3, GitHub CLI, Azure CLI, Playwright).
+    Primary interface is SSH + tmux. Connect from any machine on your network.
+    Designed for Unraid with persistent volumes for config and source code.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/claude-worker/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Environment Variables -->
+  <Config Name="PUID" Target="PUID" Default="1000" Mode="" Description="User ID for file permissions" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="PGID" Target="PGID" Default="1000" Mode="" Description="Group ID for file permissions" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Git User Name" Target="GIT_USER_NAME" Default="" Mode="" Description="Name for git commits" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Git User Email" Target="GIT_USER_EMAIL" Default="" Mode="" Description="Email for git commits" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SSH Password" Target="SSH_PASSWORD" Default="" Mode="" Description="Set to enable SSH password auth (leave blank for key-only)" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Timezone" Target="TZ" Default="America/New_York" Mode="" Description="Container timezone (e.g. America/Chicago, Europe/London)" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- Volumes -->
+  <Config Name="Home Directory" Target="/home/claude" Default="/mnt/user/appdata/claude-worker/home" Mode="rw" Description="Persistent config: Claude auth, SSH keys, git config, startup scripts" Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Repos Directory" Target="/repos" Default="/mnt/user/appdata/claude-worker/repos" Mode="rw" Description="Source code repositories" Type="Path" Display="always" Required="true" Mask="false"/>
+</Container>

@@ -1,0 +1,32 @@
+name: Build All Containers
+
+on:
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      containers: ${{ steps.find.outputs.containers }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find all containers
+        id: find
+        run: |
+          containers=$(ls -d containers/*/Dockerfile 2>/dev/null | xargs -I{} dirname {} | xargs -I{} basename {} | jq -R -s -c 'split("\n") | map(select(. != ""))')
+          echo "containers=$containers" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: discover
+    if: needs.discover.outputs.containers != '[]'
+    strategy:
+      matrix:
+        container: ${{ fromJson(needs.discover.outputs.containers) }}
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: ${{ matrix.container }}
+    permissions:
+      contents: read
+      packages: write

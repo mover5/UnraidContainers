@@ -1,0 +1,19 @@
+name: Build claude-worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/claude-worker/**"
+  pull_request:
+    paths:
+      - "containers/claude-worker/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: claude-worker
+    permissions:
+      contents: read
+      packages: write

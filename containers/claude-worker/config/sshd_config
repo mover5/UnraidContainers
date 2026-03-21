@@ -1,0 +1,25 @@
+Port 2222
+
+# Host keys — stored in persistent volume
+HostKey /home/claude/.ssh-host-keys/ssh_host_rsa_key
+HostKey /home/claude/.ssh-host-keys/ssh_host_ed25519_key
+
+# Authentication
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+
+# Security
+PermitRootLogin no
+PermitEmptyPasswords no
+X11Forwarding no
+
+# Keep connections alive (important for tmux over SSH)
+ClientAliveInterval 60
+ClientAliveCountMax 3
+
+# Allow the claude user
+AllowUsers claude
+
+# Subsystem
+Subsystem sftp /usr/lib/openssh/sftp-server

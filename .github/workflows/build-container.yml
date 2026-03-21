@@ -1,0 +1,85 @@
+name: Build and Push Container
+
+on:
+  workflow_call:
+    inputs:
+      container_name:
+        required: true
+        type: string
+        description: "Name of the container (subdirectory under containers/)"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.container_name }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate SemVer
+        id: version
+        env:
+          CONTAINER_NAME: ${{ inputs.container_name }}
+        run: |
+          VERSION_FILE="containers/${CONTAINER_NAME}/VERSION"
+
+          if [ ! -f "$VERSION_FILE" ]; then
+            echo "No VERSION file found at ${VERSION_FILE}, defaulting to 0.1.0"
+            echo "version=0.1.0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          MAJOR_MINOR=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+
+          # Count commits that touched this container's directory since VERSION was last changed
+          LAST_VERSION_CHANGE=$(git log -1 --format="%H" -- "$VERSION_FILE")
+
+          if [ -n "$LAST_VERSION_CHANGE" ]; then
+            # Count commits touching container dir after the VERSION file change (exclude the VERSION change itself)
+            PATCH=$(git log --oneline "${LAST_VERSION_CHANGE}..HEAD" -- "containers/${CONTAINER_NAME}/" | wc -l | tr -d ' ')
+          else
+            # VERSION file exists but has no git history yet (uncommitted)
+            PATCH=0
+          fi
+
+          echo "version=${MAJOR_MINOR}.${PATCH}" >> "$GITHUB_OUTPUT"
+          echo "Calculated version: ${MAJOR_MINOR}.${PATCH}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.version.outputs.version }},enable={{is_default_branch}}
+            type=sha,prefix=
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: containers/${{ inputs.container_name }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

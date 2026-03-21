@@ -1,0 +1,47 @@
+name: Cleanup old container images
+
+on:
+  schedule:
+    # Run weekly on Sunday at 3am UTC
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      containers: ${{ steps.find.outputs.containers }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find all containers
+        id: find
+        run: |
+          containers=$(ls -d containers/*/Dockerfile 2>/dev/null | xargs -I{} dirname {} | xargs -I{} basename {} | jq -R -s -c 'split("\n") | map(select(. != ""))')
+          echo "containers=$containers" >> "$GITHUB_OUTPUT"
+
+  cleanup:
+    needs: discover
+    if: needs.discover.outputs.containers != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container: ${{ fromJson(needs.discover.outputs.containers) }}
+    permissions:
+      packages: write
+    steps:
+      - name: Delete old untagged images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.container }}
+          package-type: container
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: true
+
+      - name: Delete old tagged images (keep recent)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.container }}
+          package-type: container
+          min-versions-to-keep: 20

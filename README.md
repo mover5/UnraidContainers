@@ -1,0 +1,82 @@
+# UnraidContainers
+
+Docker containers for Unraid, published to GitHub Container Registry (ghcr.io).
+
+## Containers
+
+| Container | Description | Image |
+|---|---|---|
+| [claude-worker](containers/claude-worker/) | Dev environment with Claude Code, Node.js, .NET, Python, and SSH access | `ghcr.io/mover5/claude-worker:latest` |
+
+## Running a container
+
+All images are available from `ghcr.io/mover5/<container-name>`.
+
+### Pull and run
+
+```bash
+docker pull ghcr.io/mover5/claude-worker:latest
+docker run -d ghcr.io/mover5/claude-worker:latest
+```
+
+### Pin to a version
+
+Each image is tagged with SemVer (e.g. `1.0.0`) and a commit SHA. Use a version tag to pin:
+
+```bash
+docker pull ghcr.io/mover5/claude-worker:1.0.0
+```
+
+### Unraid
+
+Each container includes an `unraid-template.xml` for use with Unraid's Community Applications. Refer to the container's directory for configuration details.
+
+---
+
+## For maintainers
+
+### Repo structure
+
+```
+containers/
+  claude-worker/
+    Dockerfile
+    VERSION          # major.minor — patch auto-increments
+    unraid-template.xml
+    ...
+.github/workflows/
+  build-container.yml       # Reusable build & push workflow
+  build-claude-worker.yml   # Triggers on changes to claude-worker/
+  build-all.yml             # Manual trigger to rebuild all containers
+```
+
+### Add a new container
+
+```bash
+./add-container.sh my-container
+```
+
+This creates:
+- `containers/my-container/Dockerfile` — starter Dockerfile
+- `containers/my-container/VERSION` — set to `0.1`
+- `.github/workflows/build-my-container.yml` — triggers on changes to that container's directory
+
+Edit the Dockerfile, commit, and push. The workflow builds and publishes to `ghcr.io/mover5/my-container`.
+
+### Versioning
+
+Each container has a `VERSION` file containing `major.minor` (e.g. `1.0`). The patch number is calculated automatically from the number of commits that touched the container since `VERSION` was last changed.
+
+| Action | Resulting tag |
+|---|---|
+| Set `VERSION` to `1.0`, push | `1.0.0` |
+| Push another change | `1.0.1` |
+| Push again | `1.0.2` |
+| Change `VERSION` to `1.1`, push | `1.1.0` |
+| Change `VERSION` to `2.0`, push | `2.0.0` |
+
+Every push to `main` also tags with `latest` and the commit SHA.
+
+### Build all containers manually
+
+Go to **Actions > Build All Containers > Run workflow** in GitHub to rebuild every container in the repo.

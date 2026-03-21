@@ -1,0 +1,19 @@
+name: Build database-backup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/database-backup/**"
+  pull_request:
+    paths:
+      - "containers/database-backup/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: database-backup
+    permissions:
+      contents: read
+      packages: write

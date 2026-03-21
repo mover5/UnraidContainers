@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Backup Manager{% endblock %}
+
+{% block content %}
+<h2>Backup Sources</h2>
+
+{% if sources %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Last Backup</th>
+            <th>Next Due</th>
+            <th>Interval</th>
+            <th>Retention</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for src in sources %}
+        <tr>
+            <td><a href="{{ url_for('main.source_detail', name=src.name) }}">{{ src.name }}</a></td>
+            <td>{{ src.type }}</td>
+            <td>
+                <span class="status-indicator status-{{ src.status }}">{{ src.status }}</span>
+                {% if src.last_error %}
+                <small class="error-text" title="{{ src.last_error }}">{{ src.last_error[:50] }}</small>
+                {% endif %}
+            </td>
+            <td>{{ src.last_backup_display }}</td>
+            <td>{{ src.next_due_display }}</td>
+            <td>{{ src.interval_display }}</td>
+            <td>{{ src.retention_display }}</td>
+            <td class="actions">
+                <form method="post" action="{{ url_for('main.trigger_backup', name=src.name) }}" style="display:inline">
+                    <button type="submit" class="outline secondary btn-sm">Backup</button>
+                </form>
+                <a href="{{ url_for('main.edit_source', name=src.name) }}" role="button" class="outline btn-sm">Edit</a>
+                <a href="{{ url_for('main.delete_source', name=src.name) }}" role="button" class="outline btn-sm contrast">Del</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No backup sources configured. Add one using the buttons above.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ source.name }} — Backup Manager{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h2>{{ source.name }}</h2>
+    <p>{{ source_type }} source</p>
+</hgroup>
+
+<div class="grid">
+    <article>
+        <header>Configuration</header>
+        <dl>
+            {% if source_type == "mysql" %}
+            <dt>Host</dt><dd>{{ source.get("host", "—") }}</dd>
+            <dt>Port</dt><dd>{{ source.get("port", 3306) }}</dd>
+            <dt>User</dt><dd>{{ source.get("user", "—") }}</dd>
+            <dt>Databases</dt><dd>{{ source.get("databases", [])|join(", ") }}</dd>
+            {% elif source_type == "azure" %}
+            <dt>Account</dt><dd>{{ source.get("account_name", "—") }}</dd>
+            <dt>Blobs</dt><dd>{{ source.get("blobs", [])|join(", ") or "—" }}</dd>
+            <dt>Files</dt><dd>{{ source.get("files", [])|join(", ") or "—" }}</dd>
+            <dt>Tables</dt><dd>{{ source.get("tables", [])|join(", ") or "—" }}</dd>
+            {% endif %}
+            <dt>Interval</dt><dd>{{ source.get("backup_interval", "default") }}</dd>
+            <dt>Retention</dt><dd>{{ source.get("backup_retention", "default") }}</dd>
+        </dl>
+    </article>
+    <article>
+        <header>Status</header>
+        {% if status %}
+        <dl>
+            <dt>State</dt>
+            <dd>
+                {% if status.is_running %}
+                <span class="status-indicator status-running">running</span>
+                {% elif status.last_error %}
+                <span class="status-indicator status-error">error</span>
+                {% else %}
+                <span class="status-indicator status-idle">idle</span>
+                {% endif %}
+            </dd>
+            {% if status.last_error %}
+            <dt>Last Error</dt><dd class="error-text">{{ status.last_error }}</dd>
+            {% endif %}
+        </dl>
+        {% else %}
+        <p>No status available yet (scheduler has not run).</p>
+        {% endif %}
+        <form method="post" action="{{ url_for('main.trigger_backup', name=source.name) }}">
+            <button type="submit" class="outline">Backup Now</button>
+        </form>
+    </article>
+</div>
+
+<h3>Backup Files</h3>
+{% if backup_files %}
+<figure>
+<table>
+    <thead>
+        <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in backup_files %}
+        <tr>
+            <td>{{ f.name }}</td>
+            <td>{{ "%.1f KB"|format(f.size / 1024) }}</td>
+            <td>{{ f.mtime.strftime("%Y-%m-%d %H:%M:%S UTC") }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+{% else %}
+<p>No backup files found.</p>
+{% endif %}
+
+<div>
+    <a href="{{ url_for('main.edit_source', name=source.name) }}" role="button" class="outline">Edit</a>
+    <a href="{{ url_for('main.delete_source', name=source.name) }}" role="button" class="outline contrast">Delete</a>
+</div>
+{% endblock %}

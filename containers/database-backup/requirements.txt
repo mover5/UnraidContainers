@@ -1,0 +1,4 @@
+azure-storage-blob>=12.19,<13
+azure-storage-file-share>=12.15,<13
+azure-data-tables>=12.5,<13
+flask>=3.0,<4

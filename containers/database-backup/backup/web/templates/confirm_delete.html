@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ source.name }} — Backup Manager{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h2>Delete Source</h2>
+    </header>
+    <p>Are you sure you want to delete the {{ source_type }} source <strong>{{ source.name }}</strong>?</p>
+    <p>This will remove the source from the configuration. Existing backup files on disk will <strong>not</strong> be deleted.</p>
+    <footer>
+        <form method="post" style="display:inline">
+            <button type="submit" class="contrast">Delete</button>
+        </form>
+        <a href="{{ url_for('main.dashboard') }}" role="button" class="outline secondary">Cancel</a>
+    </footer>
+</article>
+{% endblock %}

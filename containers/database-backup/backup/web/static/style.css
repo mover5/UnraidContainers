@@ -1,0 +1,134 @@
+/* Dark mode fallback — ensures dark even if Pico CDN fails */
+html, body {
+    background-color: #13171f;
+    color: #c2c7d0;
+}
+h1, h2, h3, h4, h5, h6, th, strong, nav strong { color: #e8ecf0; }
+a { color: #6ea8d6; }
+a:hover { color: #89bfe0; }
+table, figure, thead, tbody, tr, th, td {
+    background-color: transparent;
+    color: inherit;
+}
+table th { border-bottom: 2px solid #2a2f3a; }
+table td { border-bottom: 1px solid #2a2f3a; }
+nav { background-color: #1a1f2b; border-bottom: 1px solid #2a2f3a; }
+article { background-color: #1a1f2b; border: 1px solid #2a2f3a; }
+details { border: 1px solid #2a2f3a; }
+details summary { color: #c2c7d0; }
+input, select, textarea {
+    background-color: #1a1f2b;
+    color: #c2c7d0;
+    border-color: #2a2f3a;
+}
+button, [role="button"] {
+    color: #c2c7d0;
+    border-color: #3a4050;
+    background-color: transparent;
+}
+button:hover, [role="button"]:hover {
+    border-color: #6ea8d6;
+    color: #fff;
+}
+button.contrast, [role="button"].contrast {
+    border-color: #6a2d2d;
+    color: #e5a0a0;
+}
+button.contrast:hover, [role="button"].contrast:hover {
+    background-color: #3a1a1a;
+}
+
+/* Flash messages */
+.flash {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--pico-border-radius);
+    border: 1px solid;
+}
+
+.flash-success {
+    background-color: #1a3a2a;
+    border-color: #2d6a4f;
+    color: #95d5b2;
+}
+
+.flash-error {
+    background-color: #3a1a1a;
+    border-color: #6a2d2d;
+    color: #e5a0a0;
+}
+
+.flash-info {
+    background-color: #1a2a3a;
+    border-color: #2d4f6a;
+    color: #a0cce5;
+}
+
+/* Status indicators */
+.status-indicator {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    padding: 0.15em 0.5em;
+    border-radius: var(--pico-border-radius);
+}
+
+.status-idle {
+    color: #95d5b2;
+    background-color: #1a3a2a;
+}
+
+.status-running {
+    color: #f0c674;
+    background-color: #3a3520;
+}
+
+.status-error {
+    color: #e5a0a0;
+    background-color: #3a1a1a;
+}
+
+.error-text {
+    color: #e5a0a0;
+}
+
+/* Action buttons in table */
+.actions {
+    white-space: nowrap;
+}
+
+.actions form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.btn-sm {
+    display: inline-block;
+    padding: 0.15rem 0.4rem !important;
+    font-size: 0.7rem;
+    margin: 0 0.15rem;
+    line-height: 1.3;
+    width: auto !important;
+}
+
+/* Table tweaks */
+table {
+    width: 100%;
+    table-layout: fixed;
+}
+th, td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.5rem !important;
+}
+/* Column widths for dashboard table */
+th:nth-child(1), td:nth-child(1) { width: 18%; }
+th:nth-child(2), td:nth-child(2) { width: 7%; }
+th:nth-child(3), td:nth-child(3) { width: 8%; }
+th:nth-child(4), td:nth-child(4) { width: 11%; }
+th:nth-child(5), td:nth-child(5) { width: 9%; }
+th:nth-child(6), td:nth-child(6) { width: 9%; }
+th:nth-child(7), td:nth-child(7) { width: 10%; }
+th:nth-child(8), td:nth-child(8) { width: 28%; }
+

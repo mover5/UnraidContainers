@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{% if editing %}Edit{% else %}Add{% endif %} {{ source_type }} Source — Backup Manager{% endblock %}
+
+{% block content %}
+<h2>{% if editing %}Edit{% else %}Add{% endif %} {{ source_type }} Source</h2>
+
+<form method="post">
+    <label for="name">Name
+        <input type="text" id="name" name="name" value="{{ source.get('name', '') }}" required
+               placeholder="my-server" {% if editing %}readonly{% endif %}>
+    </label>
+
+    {% if source_type == "mysql" %}
+    <div class="grid">
+        <label for="host">Host
+            <input type="text" id="host" name="host" value="{{ source.get('host', '') }}" required
+                   placeholder="192.168.1.100">
+        </label>
+        <label for="port">Port
+            <input type="number" id="port" name="port" value="{{ source.get('port', 3306) }}"
+                   placeholder="3306">
+        </label>
+    </div>
+    <div class="grid">
+        <label for="user">User
+            <input type="text" id="user" name="user" value="{{ source.get('user', '') }}" required
+                   placeholder="root">
+        </label>
+        <label for="password">Password
+            <input type="password" id="password" name="password" value="{{ source.get('password', '') }}" required
+                   placeholder="secret">
+        </label>
+    </div>
+    <label for="databases">Databases (comma-separated)
+        <input type="text" id="databases" name="databases"
+               value="{{ source.get('databases', [])|join(', ') }}" required
+               placeholder="db1, db2">
+    </label>
+
+    {% elif source_type == "azure" %}
+    <div class="grid">
+        <label for="account_name">Account Name
+            <input type="text" id="account_name" name="account_name"
+                   value="{{ source.get('account_name', '') }}" required
+                   placeholder="mystorageaccount">
+        </label>
+        <label for="account_key">Account Key
+            <input type="password" id="account_key" name="account_key"
+                   value="{{ source.get('account_key', '') }}" required
+                   placeholder="base64key==">
+        </label>
+    </div>
+    <label for="blobs">Blob Containers (comma-separated)
+        <input type="text" id="blobs" name="blobs"
+               value="{{ source.get('blobs', [])|join(', ') }}"
+               placeholder="container1, container2">
+    </label>
+    <label for="files">File Shares (comma-separated)
+        <input type="text" id="files" name="files"
+               value="{{ source.get('files', [])|join(', ') }}"
+               placeholder="share1, share2">
+    </label>
+    <label for="tables">Tables (comma-separated)
+        <input type="text" id="tables" name="tables"
+               value="{{ source.get('tables', [])|join(', ') }}"
+               placeholder="table1, table2">
+    </label>
+    {% endif %}
+
+    <details>
+        <summary>Schedule (optional — leave blank to use global defaults)</summary>
+        <div class="grid">
+            <label for="backup_interval">Backup Interval
+                <input type="text" id="backup_interval" name="backup_interval"
+                       value="{{ source.get('backup_interval', '') }}"
+                       placeholder="e.g. 6h, 30m, 7d">
+            </label>
+            <label for="backup_retention">Backup Retention
+                <input type="text" id="backup_retention" name="backup_retention"
+                       value="{{ source.get('backup_retention', '') }}"
+                       placeholder="e.g. 30d, 7d">
+            </label>
+        </div>
+    </details>
+
+    <div class="grid">
+        <button type="submit">{% if editing %}Save Changes{% else %}Add Source{% endif %}</button>
+        <button type="button" class="outline secondary" onclick="location.href='{{ url_for('main.dashboard') }}'">Cancel</button>
+    </div>
+</form>
+{% endblock %}

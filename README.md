@@ -7,6 +7,7 @@ Docker containers for Unraid, published to GitHub Container Registry (ghcr.io).
 | Container | Description | Image |
 |---|---|---|
 | [claude-worker](containers/claude-worker/) | Dev environment with Claude Code, Node.js, .NET, Python, and SSH access | `ghcr.io/mover5/claude-worker:latest` |
+| [database-backup](containers/database-backup/) | Scheduled database backups (MySQL, Azure SQL) with web dashboard | `ghcr.io/mover5/database-backup:latest` |
 
 ## Running a container
 
@@ -47,6 +48,7 @@ containers/
 .github/workflows/
   build-container.yml       # Reusable build & push workflow
   build-claude-worker.yml   # Triggers on changes to claude-worker/
+  build-database-backup.yml # Triggers on changes to database-backup/
   build-all.yml             # Manual trigger to rebuild all containers
 ```
 

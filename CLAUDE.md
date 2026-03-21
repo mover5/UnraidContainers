@@ -69,3 +69,6 @@ Docker layer caching uses GitHub Actions Cache (`type=gha`), which is capped at 
 
 ### claude-worker
 Dev environment container with Claude Code, Node.js 22, .NET 9, Python 3, GitHub CLI, Azure CLI, and Playwright. Access via SSH on port 2222 + tmux. Originally migrated from the standalone `UnraidClaudeWorker` repo. Supports PUID/PGID remapping, persistent home/repos volumes, and optional SSH password auth.
+
+### database-backup
+Python-based scheduled database backup tool with a Flask web dashboard (port 8008). Supports MySQL and Azure SQL as backup sources, with Azure Blob/File Share storage. Includes a scheduler that runs backups on cron schedules, state tracking, and a web UI for managing backup sources. Originally migrated from the standalone `UnraidDatabaseBackup` repo. Has a test suite under `tests/`.

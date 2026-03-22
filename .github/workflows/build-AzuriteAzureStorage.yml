@@ -1,0 +1,19 @@
+name: Build AzuriteAzureStorage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/AzuriteAzureStorage/**"
+  pull_request:
+    paths:
+      - "containers/AzuriteAzureStorage/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: AzuriteAzureStorage
+    permissions:
+      contents: read
+      packages: write

@@ -20,6 +20,7 @@
     seed duration via the UI.
   </Description>
   <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/cleanrr/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:9494]/</WebUI>
   <ExtraParams/>
   <PostArgs/>
   <DonateText/>

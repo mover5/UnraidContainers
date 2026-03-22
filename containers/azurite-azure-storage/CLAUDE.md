@@ -1,4 +1,4 @@
-# AzuriteAzureStorage
+# azurite-azure-storage
 
 Local Azure Storage emulator with a built-in web UI. Runs Azurite (Blob/Queue/Table services) and the sebagomez/azurestorageexplorer web dashboard in a single container.
 
@@ -35,4 +35,4 @@ DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02x
 
 ## Data persistence
 
-All Azurite data is stored in `/data` (mapped to `/mnt/user/appdata/AzuriteAzureStorage` on Unraid). This includes blob contents, queue messages, table entities, and Azurite's metadata files.
+All Azurite data is stored in `/data` (mapped to `/mnt/user/appdata/azurite-azure-storage` on Unraid). This includes blob contents, queue messages, table entities, and Azurite's metadata files.

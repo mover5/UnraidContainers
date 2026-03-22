@@ -83,5 +83,5 @@ Python-based torrent lifecycle manager for Deluge with a Flask web dashboard (po
 ### database-backup
 Python-based scheduled database backup tool with a Flask web dashboard (port 8008). Supports MySQL and Azure SQL as backup sources, with Azure Blob/File Share storage. Includes a scheduler that runs backups on cron schedules, state tracking, and a web UI for managing backup sources. Originally migrated from the standalone `UnraidDatabaseBackup` repo. Has a test suite under `tests/`.
 
-### AzuriteAzureStorage
+### azurite-azure-storage
 Local Azure Storage emulator powered by Azurite with a built-in web UI (sebagomez/azurestorageexplorer). Exposes Blob (10000), Queue (10001), and Table (10002) storage APIs plus a Storage Explorer web dashboard (8080) for browsing blobs, queues, tables, and file shares. Uses supervisord to run both Azurite (Node.js) and the explorer (.NET Blazor) in a single container. Data persists in `/data`.

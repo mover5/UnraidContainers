@@ -9,7 +9,7 @@ Docker containers for Unraid, published to GitHub Container Registry (ghcr.io).
 | [claude-worker](containers/claude-worker/) | Dev environment with Claude Code, Node.js, .NET, Python, and SSH access | `ghcr.io/mover5/claude-worker:latest` |
 | [cleanrr](containers/cleanrr/) | Torrent lifecycle manager for Deluge with web dashboard | `ghcr.io/mover5/cleanrr:latest` |
 | [database-backup](containers/database-backup/) | Scheduled database backups (MySQL, Azure SQL) with web dashboard | `ghcr.io/mover5/database-backup:latest` |
-| [AzuriteAzureStorage](containers/AzuriteAzureStorage/) | Local Azure Storage emulator (Azurite) with web-based Storage Explorer | `ghcr.io/mover5/AzuriteAzureStorage:latest` |
+| [azurite-azure-storage](containers/azurite-azure-storage/) | Local Azure Storage emulator (Azurite) with web-based Storage Explorer | `ghcr.io/mover5/azurite-azure-storage:latest` |
 
 ## Running a container
 
@@ -58,7 +58,7 @@ containers/
   build-claude-worker.yml   # Triggers on changes to claude-worker/
   build-cleanrr.yml         # Triggers on changes to cleanrr/
   build-database-backup.yml # Triggers on changes to database-backup/
-  build-AzuriteAzureStorage.yml # Triggers on changes to AzuriteAzureStorage/
+  build-azurite-azure-storage.yml # Triggers on changes to azurite-azure-storage/
   build-all.yml             # Manual trigger to rebuild all containers
   sync-templates.yml        # Auto-syncs unraid-template.xml files to templates/
 templates/                  # Flat directory of Unraid templates (auto-generated)

@@ -1,24 +1,24 @@
 FROM sebagomez/azurestorageexplorer:latest AS explorer
 
-FROM node:22-slim
+FROM node:22-alpine
 
 LABEL maintainer="mover5"
 LABEL org.opencontainers.image.source="https://github.com/mover5/UnraidContainers"
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
     supervisor \
-    libicu72 \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
+    bash \
+    icu-libs \
+    libstdc++
 
 # .NET 10 ASP.NET Core runtime (needed for the storage explorer web UI)
-COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0 /usr/share/dotnet /usr/share/dotnet
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0-alpine /usr/share/dotnet /usr/share/dotnet
 RUN ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 
 # Azurite
 RUN npm install -g azurite
 
-# Azure Storage Explorer web UI
+# Azure Storage Explorer web UI (app lives at /app with web.dll as entrypoint)
 COPY --from=explorer /app /opt/azure-storage-explorer
 
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

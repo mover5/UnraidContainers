@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>AzuriteAzureStorage</Name>
+  <Repository>ghcr.io/mover5/AzuriteAzureStorage:latest</Repository>
+  <Registry>https://ghcr.io/mover5/AzuriteAzureStorage</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Local Azure Storage emulator powered by Azurite with a built-in web UI for browsing
+    blobs, queues, tables, and file shares. Drop-in replacement for Azure Storage in development.
+  </Overview>
+  <Category>Productivity: Tools:</Category>
+  <Description>
+    Runs Microsoft Azurite (Azure Storage emulator) with a bundled web-based Storage Explorer UI.
+    Provides Blob (port 10000), Queue (10001), and Table (10002) services with full API compatibility.
+    Includes a web dashboard (port 8080) for browsing and managing storage contents — blobs, queues,
+    tables, and file shares — similar to Azure Storage Explorer desktop. Data persists across restarts.
+    Connect from other containers using the standard Azure Storage connection string with Azurite's
+    well-known development credentials.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/AzuriteAzureStorage/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Blob Service -->
+  <Config Name="Blob Service Port" Target="10000" Default="10000" Mode="tcp" Description="Azure Blob Storage API port" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Queue Service -->
+  <Config Name="Queue Service Port" Target="10001" Default="10001" Mode="tcp" Description="Azure Queue Storage API port" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Table Service -->
+  <Config Name="Table Service Port" Target="10002" Default="10002" Mode="tcp" Description="Azure Table Storage API port" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="8080" Default="8080" Mode="tcp" Description="Storage Explorer web dashboard port" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- Volumes -->
+  <Config Name="Data Directory" Target="/data" Default="/mnt/user/appdata/AzuriteAzureStorage" Mode="rw" Description="Persistent storage for Azurite data (blobs, queues, tables)" Type="Path" Display="always" Required="true" Mask="false"/>
+</Container>

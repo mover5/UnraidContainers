@@ -19,6 +19,7 @@
     triggering manual backups. Configurable backup intervals and retention policies.
   </Description>
   <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/database-backup/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8008]/</WebUI>
   <ExtraParams/>
   <PostArgs/>
   <DonateText/>

@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # .NET 10 ASP.NET Core runtime (needed for the storage explorer web UI)
-COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0-bookworm-slim /usr/share/dotnet /usr/share/dotnet
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0 /usr/share/dotnet /usr/share/dotnet
 RUN ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 
 # Azurite

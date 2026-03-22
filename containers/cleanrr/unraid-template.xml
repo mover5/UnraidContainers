@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Container version="2">
-  <Name>mover5:cleanrr</Name>
+  <Name>cleanrr</Name>
   <Repository>ghcr.io/mover5/cleanrr:latest</Repository>
   <Registry>https://ghcr.io/mover5/cleanrr</Registry>
   <Network>bridge</Network>

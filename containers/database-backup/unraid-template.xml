@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Container version="2">
-  <Name>mover5:database-backup</Name>
+  <Name>database-backup</Name>
   <Repository>ghcr.io/mover5/database-backup:latest</Repository>
   <Registry>https://ghcr.io/mover5/database-backup</Registry>
   <Network>bridge</Network>

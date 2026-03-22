@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Container version="2">
-  <Name>mover5:claude-worker</Name>
+  <Name>claude-worker</Name>
   <Repository>ghcr.io/mover5/claude-worker:latest</Repository>
   <Registry>https://ghcr.io/mover5/claude-worker</Registry>
   <Network>host</Network>

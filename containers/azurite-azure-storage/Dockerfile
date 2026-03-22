@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
-# .NET 8 ASP.NET Core runtime (needed for the storage explorer web UI)
-COPY --from=mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim /usr/share/dotnet /usr/share/dotnet
+# .NET 10 ASP.NET Core runtime (needed for the storage explorer web UI)
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0-bookworm-slim /usr/share/dotnet /usr/share/dotnet
 RUN ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 
 # Azurite

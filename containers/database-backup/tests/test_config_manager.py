@@ -26,7 +26,7 @@ def _write_json(tmp_path, data):
 
 _SAMPLE_CONFIG = {
     "backup_interval": "6h",
-    "backup_retention": "7d",
+    "backup_retention": "7",
     "mysql_servers": [
         {
             "name": "db1",

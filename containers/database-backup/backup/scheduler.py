@@ -1,5 +1,4 @@
 import time
-from datetime import datetime, timezone
 from glob import glob
 from pathlib import Path
 
@@ -9,12 +8,11 @@ from .state import shared_state
 from . import sources
 
 
-def cleanup_source_backups(source_dir, retention_seconds):
-    """Delete backup files older than the retention period within a source directory.
+def cleanup_source_backups(source_dir, retention_count):
+    """Keep the N most recent backup files and delete the rest.
 
-    Always keeps at least one backup file (the most recent) regardless of age.
+    Always keeps at least one backup file regardless of the retention count.
     """
-    now = datetime.now(timezone.utc)
     extensions = ("*.sql.gz", "*.tar.gz", "*.json.gz")
 
     all_files = []
@@ -22,22 +20,21 @@ def cleanup_source_backups(source_dir, retention_seconds):
         pattern = str(source_dir / "**" / ext)
         for filepath in glob(pattern, recursive=True):
             path = Path(filepath)
-            mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+            mtime = path.stat().st_mtime
             all_files.append((path, mtime))
 
-    if len(all_files) <= 1:
+    keep = max(retention_count, 1)
+    if len(all_files) <= keep:
         return
 
     all_files.sort(key=lambda x: x[1], reverse=True)
 
-    for path, mtime in all_files[1:]:  # skip the newest
-        age_seconds = (now - mtime).total_seconds()
-        if age_seconds > retention_seconds:
-            try:
-                path.unlink()
-                log.info("Deleted expired backup: %s (age: %.1f hours)", path.name, age_seconds / 3600)
-            except OSError:
-                log.exception("Failed to delete %s", path.name)
+    for path, _mtime in all_files[keep:]:
+        try:
+            path.unlink()
+            log.info("Deleted old backup: %s (keeping %d most recent)", path.name, keep)
+        except OSError:
+            log.exception("Failed to delete %s", path.name)
 
 
 def _latest_backup_age(source_dir):
@@ -84,14 +81,14 @@ def scheduler_loop():
                 source["name"],
                 source_type=handler.SOURCE_TYPE,
                 interval_seconds=source["_interval"],
-                retention_seconds=source["_retention"],
+                retention_count=source["_retention"],
             )
             log.info(
-                "[%s] %s source — interval: %s, retention: %s",
+                "[%s] %s source — interval: %s, retention: %d copies",
                 source["name"],
                 handler.SOURCE_TYPE,
                 _format_interval(source["_interval"]),
-                _format_interval(source["_retention"]),
+                source["_retention"],
             )
 
         # Seed last_backup from disk for sources not yet tracked (e.g. after restart)

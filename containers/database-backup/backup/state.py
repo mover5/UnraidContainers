@@ -10,7 +10,7 @@ class SourceStatus:
     source_type: str = ""
     name: str = ""
     interval_seconds: float = 0
-    retention_seconds: float = 0
+    retention_count: int = 0
     last_backup_monotonic: float | None = None
     last_backup_wall: float | None = None
     is_running: bool = False

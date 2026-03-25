@@ -28,48 +28,48 @@ def _touch(path: Path, age_seconds: float = 0.0):
 class TestCleanupSourceBackups:
     def test_empty_directory_does_nothing(self, tmp_path):
         # No files — should not raise
-        cleanup_source_backups(tmp_path, retention_seconds=3600)
+        cleanup_source_backups(tmp_path, retention_count=5)
 
     def test_single_file_never_deleted(self, tmp_path):
-        """Even if the single file is older than retention, it must be kept."""
+        """Even with retention_count=1, the single file is kept."""
         f = _touch(tmp_path / "db_2020-01-01_000000.sql.gz", age_seconds=99999)
-        cleanup_source_backups(tmp_path, retention_seconds=60)
+        cleanup_source_backups(tmp_path, retention_count=1)
         assert f.exists()
 
-    def test_old_file_deleted_when_newer_exists(self, tmp_path):
-        old = _touch(tmp_path / "db_old.sql.gz", age_seconds=7200)   # 2h old
-        new = _touch(tmp_path / "db_new.sql.gz", age_seconds=60)     # 1m old
-        cleanup_source_backups(tmp_path, retention_seconds=3600)      # 1h retention
+    def test_keeps_n_newest_deletes_rest(self, tmp_path):
+        old = _touch(tmp_path / "db_old.sql.gz", age_seconds=7200)
+        mid = _touch(tmp_path / "db_mid.sql.gz", age_seconds=3600)
+        new = _touch(tmp_path / "db_new.sql.gz", age_seconds=60)
+        cleanup_source_backups(tmp_path, retention_count=2)
         assert new.exists()
+        assert mid.exists()
         assert not old.exists()
 
-    def test_recent_files_not_deleted(self, tmp_path):
+    def test_all_kept_when_under_retention(self, tmp_path):
         f1 = _touch(tmp_path / "db_1.sql.gz", age_seconds=100)
         f2 = _touch(tmp_path / "db_2.sql.gz", age_seconds=200)
-        cleanup_source_backups(tmp_path, retention_seconds=3600)
+        cleanup_source_backups(tmp_path, retention_count=5)
         assert f1.exists()
         assert f2.exists()
 
-    def test_newest_file_kept_even_if_over_retention(self, tmp_path):
-        """If all files are expired, the single newest is still kept."""
-        old1 = _touch(tmp_path / "db_a.sql.gz", age_seconds=10000)
-        old2 = _touch(tmp_path / "db_b.sql.gz", age_seconds=20000)
-        cleanup_source_backups(tmp_path, retention_seconds=60)
-        # old1 is newer — must survive; old2 should be deleted
-        assert old1.exists()
-        assert not old2.exists()
+    def test_retention_count_1_keeps_only_newest(self, tmp_path):
+        old = _touch(tmp_path / "db_a.sql.gz", age_seconds=10000)
+        new = _touch(tmp_path / "db_b.sql.gz", age_seconds=100)
+        cleanup_source_backups(tmp_path, retention_count=1)
+        assert new.exists()
+        assert not old.exists()
 
     def test_tar_gz_files_are_cleaned(self, tmp_path):
         new = _touch(tmp_path / "share_new.tar.gz", age_seconds=10)
         old = _touch(tmp_path / "share_old.tar.gz", age_seconds=7200)
-        cleanup_source_backups(tmp_path, retention_seconds=3600)
+        cleanup_source_backups(tmp_path, retention_count=1)
         assert new.exists()
         assert not old.exists()
 
     def test_json_gz_files_are_cleaned(self, tmp_path):
         new = _touch(tmp_path / "table_new.json.gz", age_seconds=10)
         old = _touch(tmp_path / "table_old.json.gz", age_seconds=7200)
-        cleanup_source_backups(tmp_path, retention_seconds=3600)
+        cleanup_source_backups(tmp_path, retention_count=1)
         assert new.exists()
         assert not old.exists()
 
@@ -77,9 +77,17 @@ class TestCleanupSourceBackups:
         subdir = tmp_path / "subdir"
         new = _touch(subdir / "db_new.sql.gz", age_seconds=10)
         old = _touch(subdir / "db_old.sql.gz", age_seconds=7200)
-        cleanup_source_backups(tmp_path, retention_seconds=3600)
+        cleanup_source_backups(tmp_path, retention_count=1)
         assert new.exists()
         assert not old.exists()
+
+    def test_always_keeps_at_least_one(self, tmp_path):
+        """Even with retention_count=0 (invalid), at least one file is kept."""
+        f1 = _touch(tmp_path / "db_1.sql.gz", age_seconds=1000)
+        f2 = _touch(tmp_path / "db_2.sql.gz", age_seconds=2000)
+        cleanup_source_backups(tmp_path, retention_count=0)
+        assert f1.exists()
+        assert not f2.exists()
 
 
 # ---------------------------------------------------------------------------

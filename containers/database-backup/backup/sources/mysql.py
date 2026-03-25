@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from ..common import BACKUP_DIR, log, parse_interval
+from ..common import BACKUP_DIR, log, parse_interval, parse_retention
 
 SOURCE_TYPE = "mysql"
 CONFIG_KEY = "mysql_servers"
@@ -38,7 +38,7 @@ def validate(source, index, errors, global_interval, global_retention):
 
     if "backup_retention" in source:
         try:
-            source["_retention"] = parse_interval(source["backup_retention"])
+            source["_retention"] = parse_retention(source["backup_retention"])
         except ValueError as e:
             errors.append(f"MySQL server #{index + 1}: {e}")
             source["_retention"] = global_retention

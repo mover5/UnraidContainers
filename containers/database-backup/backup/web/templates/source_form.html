@@ -75,10 +75,10 @@
                        value="{{ source.get('backup_interval', '') }}"
                        placeholder="e.g. 6h, 30m, 7d">
             </label>
-            <label for="backup_retention">Backup Retention
+            <label for="backup_retention">Backup Retention (copies to keep)
                 <input type="text" id="backup_retention" name="backup_retention"
                        value="{{ source.get('backup_retention', '') }}"
-                       placeholder="e.g. 30d, 7d">
+                       placeholder="e.g. 5, 10, 30">
             </label>
         </div>
     </details>

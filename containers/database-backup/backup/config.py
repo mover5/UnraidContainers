@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 
-from .common import log, parse_interval
+from .common import log, parse_interval, parse_retention
 from . import sources
 
 
@@ -29,12 +29,12 @@ def load_config(path="/config/servers.json"):
         errors.append(str(e))
         global_interval = 86400
 
-    retention_str = raw.get("backup_retention", "30d")
+    retention_str = raw.get("backup_retention", "30")
     try:
-        global_retention = parse_interval(retention_str)
+        global_retention = parse_retention(retention_str)
     except ValueError as e:
         errors.append(str(e))
-        global_retention = 30 * 86400
+        global_retention = 30
 
     # Load and validate all source types via the registry
     config = {

@@ -57,18 +57,18 @@ class TestLoadConfigValid:
     def test_defaults_applied(self, tmp_path):
         cfg_path = _write_config(tmp_path, _MINIMAL_MYSQL)
         config = load_config(cfg_path)
-        # Default interval 24h = 86400s, retention 30d
+        # Default interval 24h = 86400s, retention 30 copies
         assert config["interval"] == 86400
-        assert config["retention"] == 30 * 86400
+        assert config["retention"] == 30
 
     def test_global_interval_override(self, tmp_path):
         data = dict(_MINIMAL_MYSQL)
         data["backup_interval"] = "6h"
-        data["backup_retention"] = "7d"
+        data["backup_retention"] = "7"
         cfg_path = _write_config(tmp_path, data)
         config = load_config(cfg_path)
         assert config["interval"] == 6 * 3600
-        assert config["retention"] == 7 * 86400
+        assert config["retention"] == 7
 
     def test_per_source_interval_override(self, tmp_path):
         data = {
@@ -80,7 +80,7 @@ class TestLoadConfigValid:
                     "password": "secret",
                     "databases": ["mydb"],
                     "backup_interval": "30m",
-                    "backup_retention": "3d",
+                    "backup_retention": "3",
                 }
             ]
         }
@@ -88,7 +88,7 @@ class TestLoadConfigValid:
         config = load_config(cfg_path)
         src = config["mysql_servers"][0]
         assert src["_interval"] == 30 * 60
-        assert src["_retention"] == 3 * 86400
+        assert src["_retention"] == 3
 
     def test_source_inherits_global_interval(self, tmp_path):
         data = dict(_MINIMAL_MYSQL)

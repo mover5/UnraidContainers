@@ -61,17 +61,17 @@ Sources live in `backup/sources/`. Each module exports: `SOURCE_TYPE`, `CONFIG_K
 ```json
 {
   "backup_interval": "24h",
-  "backup_retention": "30d",
+  "backup_retention": "30",
   "mysql_servers": [...],
   "storage_accounts": [...]
 }
 ```
 
-Global `backup_interval` and `backup_retention` apply as defaults; each source can override with its own values. Intervals/retention accept formats like `"30m"`, `"6h"`, `"7d"`.
+Global `backup_interval` and `backup_retention` apply as defaults; each source can override with its own values. Intervals accept formats like `"30m"`, `"6h"`, `"7d"`. Retention is a plain integer (number of backups to keep, e.g. `"5"`, `"30"`).
 
 ## Retention Policy
 
-Runs after every successful backup. Deletes files older than retention, but always keeps at least 1 backup per source. Scans `.sql.gz`, `.tar.gz`, `.json.gz` extensions.
+Runs after every successful backup. Keeps the N most recent backup files per source (count-based), deleting the rest. Always keeps at least 1 backup. Scans `.sql.gz`, `.tar.gz`, `.json.gz` extensions. The retention value is a plain integer (e.g. `"5"` = keep 5 copies).
 
 ## Web Routes
 

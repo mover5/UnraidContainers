@@ -17,7 +17,7 @@ from backup.web import create_app
 def sample_config():
     return {
         "backup_interval": "6h",
-        "backup_retention": "7d",
+        "backup_retention": "7",
         "mysql_servers": [
             {
                 "name": "db1",

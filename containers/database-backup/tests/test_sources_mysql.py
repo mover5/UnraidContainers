@@ -10,7 +10,7 @@ from backup.sources import mysql
 
 # Global defaults used across tests
 _GLOBAL_INTERVAL = 86400   # 24h
-_GLOBAL_RETENTION = 30 * 86400  # 30d
+_GLOBAL_RETENTION = 30
 
 
 def _valid_source(**overrides):
@@ -71,12 +71,12 @@ class TestMysqlValidateValid:
         assert src["_retention"] == _GLOBAL_RETENTION
 
     def test_per_source_interval_override(self):
-        src = _valid_source(backup_interval="30m", backup_retention="3d")
+        src = _valid_source(backup_interval="30m", backup_retention="3")
         errors = []
         mysql.validate(src, 0, errors, _GLOBAL_INTERVAL, _GLOBAL_RETENTION)
         assert errors == []
         assert src["_interval"] == 30 * 60
-        assert src["_retention"] == 3 * 86400
+        assert src["_retention"] == 3
 
 
 # ---------------------------------------------------------------------------

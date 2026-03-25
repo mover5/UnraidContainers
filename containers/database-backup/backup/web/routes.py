@@ -92,7 +92,7 @@ def _validate_source(source_type, data):
     errors = []
     # Use a copy so validation mutations don't leak into the original
     test_data = dict(data)
-    handler.validate(test_data, 0, errors, 86400, 30 * 86400)
+    handler.validate(test_data, 0, errors, 86400, 30)
     return errors
 
 
@@ -123,13 +123,13 @@ def dashboard():
             src["last_error"] = status.last_error
             src["last_backup_wall"] = status.last_backup_wall
             src["interval_seconds"] = status.interval_seconds
-            src["retention_seconds"] = status.retention_seconds
+            src["retention_count"] = status.retention_count
         else:
             src["is_running"] = False
             src["last_error"] = None
             src["last_backup_wall"] = None
             src["interval_seconds"] = 0
-            src["retention_seconds"] = 0
+            src["retention_count"] = 0
 
     # Compute display values
     now_ts = time.time()
@@ -140,8 +140,8 @@ def dashboard():
         else:
             src["interval_display"] = src["interval"] or "default"
 
-        if src["retention_seconds"]:
-            src["retention_display"] = _format_interval(int(src["retention_seconds"]))
+        if src["retention_count"]:
+            src["retention_display"] = f"{src['retention_count']} copies"
         else:
             src["retention_display"] = src["retention"] or "default"
 

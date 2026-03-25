@@ -15,7 +15,7 @@ from backup.sources.azure import _serialize_table_entity
 
 # Global defaults used across tests
 _GLOBAL_INTERVAL = 86400
-_GLOBAL_RETENTION = 30 * 86400
+_GLOBAL_RETENTION = 30
 
 
 def _valid_source(**overrides):
@@ -64,12 +64,12 @@ class TestAzureValidateValid:
         assert src["_retention"] == _GLOBAL_RETENTION
 
     def test_per_source_interval_override(self):
-        src = _valid_source(backup_interval="1h", backup_retention="7d")
+        src = _valid_source(backup_interval="1h", backup_retention="7")
         errors = []
         azure.validate(src, 0, errors, _GLOBAL_INTERVAL, _GLOBAL_RETENTION)
         assert errors == []
         assert src["_interval"] == 3600
-        assert src["_retention"] == 7 * 86400
+        assert src["_retention"] == 7
 
     def test_defaults_empty_lists(self):
         src = {

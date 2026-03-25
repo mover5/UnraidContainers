@@ -25,6 +25,21 @@ def parse_interval(value):
     return amount * multipliers[unit]
 
 
+def parse_retention(value):
+    """Parse a retention count (e.g. '5', '30'). Returns an integer >= 1."""
+    try:
+        count = int(str(value).strip())
+    except (ValueError, TypeError):
+        raise ValueError(
+            f"Invalid retention '{value}'. Use a positive integer (number of backups to keep)."
+        )
+    if count < 1:
+        raise ValueError(
+            f"Invalid retention '{value}'. Must be at least 1."
+        )
+    return count
+
+
 def _format_interval(seconds):
     """Format seconds into a human-readable string like '6h', '30m', '7d'."""
     if seconds >= 86400 and seconds % 86400 == 0:

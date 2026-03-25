@@ -11,7 +11,7 @@ from azure.data.tables import TableServiceClient
 from azure.storage.blob import BlobServiceClient
 from azure.storage.fileshare import ShareServiceClient
 
-from ..common import BACKUP_DIR, log, parse_interval
+from ..common import BACKUP_DIR, log, parse_interval, parse_retention
 
 SOURCE_TYPE = "azure"
 CONFIG_KEY = "storage_accounts"
@@ -50,7 +50,7 @@ def validate(source, index, errors, global_interval, global_retention):
 
     if "backup_retention" in source:
         try:
-            source["_retention"] = parse_interval(source["backup_retention"])
+            source["_retention"] = parse_retention(source["backup_retention"])
         except ValueError as e:
             errors.append(f"Storage account #{index + 1}: {e}")
             source["_retention"] = global_retention

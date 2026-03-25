@@ -6,7 +6,7 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = os.environ.get("SECRET_KEY", "unraid-backup-default-key")
+    app.secret_key = os.environ.get("SECRET_KEY") or "unraid-backup-default-key"
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
     from .routes import bp

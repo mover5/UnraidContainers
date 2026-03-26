@@ -1,0 +1,37 @@
+# =============================================================================
+# Caddy Reverse Proxy Configuration
+# =============================================================================
+#
+# This file maps subdomains to your Docker containers.
+# Caddy will automatically obtain and renew SSL certs via Cloudflare DNS-01.
+#
+# SETUP:
+#   1. Replace "yourdomain.com" with your actual domain
+#   2. Set the CF_API_TOKEN environment variable in Unraid
+#   3. Add/remove service blocks below to match your containers
+#
+# ADDING A NEW SERVICE:
+#   servicename.yourdomain.com {
+#       reverse_proxy <container-ip-or-hostname>:<port>
+#   }
+#
+# =============================================================================
+
+# Global settings — use Cloudflare DNS-01 for all certs
+{
+	acme_dns cloudflare {env.CF_API_TOKEN}
+}
+
+# -- Example services (uncomment and edit as needed) --
+
+# grafana.yourdomain.com {
+#     reverse_proxy 192.168.1.100:3000
+# }
+
+# jellyfin.yourdomain.com {
+#     reverse_proxy 192.168.1.100:8096
+# }
+
+# cleanrr.yourdomain.com {
+#     reverse_proxy 192.168.1.100:9494
+# }

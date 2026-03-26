@@ -1,0 +1,19 @@
+name: Build caddy-reverse-proxy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/caddy-reverse-proxy/**"
+  pull_request:
+    paths:
+      - "containers/caddy-reverse-proxy/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: caddy-reverse-proxy
+    permissions:
+      contents: read
+      packages: write

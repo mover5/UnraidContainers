@@ -71,7 +71,12 @@ function renderTorrents() {
     const tbody = document.getElementById("torrent-table");
     const showRemoved = document.getElementById("show-removed").checked;
 
-    const visible = showRemoved ? torrents : torrents.filter(t => !t.removed);
+    const showMissing = document.getElementById("show-missing").checked;
+    const visible = torrents.filter(t => {
+        if (t.removed) return showRemoved;
+        if (t.state === "Missing") return showMissing;
+        return true;
+    });
 
     if (visible.length === 0) {
         tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No torrents found</td></tr>';
@@ -86,7 +91,11 @@ function renderTorrents() {
         const protectAction = t.protected ? "unprotect" : "protect";
 
         let actionsHtml = "";
-        if (!t.removed) {
+        if (!t.removed && t.state === "Missing") {
+            actionsHtml = `
+                <button class="action-btn delete" onclick="dismissTorrent('${t.torrent_hash}', '${escapeHtml(t.name)}')">Dismiss</button>
+            `;
+        } else if (!t.removed) {
             actionsHtml = `
                 <button class="action-btn ${protectClass}" onclick="toggleProtect('${t.torrent_hash}', '${protectAction}')">${protectLabel}</button>
                 <button class="action-btn delete" onclick="removeTorrent('${t.torrent_hash}', '${escapeHtml(t.name)}')">Remove</button>
@@ -133,7 +142,8 @@ function escapeHtml(str) {
 }
 
 function updateStats() {
-    const active = torrents.filter(t => !t.removed);
+    const active = torrents.filter(t => !t.removed && t.state !== "Missing");
+    const missing = torrents.filter(t => !t.removed && t.state === "Missing");
     const pending = active.filter(t => !t.protected && t.scheduled_removal);
     const protectedCount = active.filter(t => t.protected);
     const removed = torrents.filter(t => t.removed);
@@ -141,13 +151,13 @@ function updateStats() {
     document.getElementById("stat-active").textContent = active.length;
     document.getElementById("stat-pending").textContent = pending.length;
     document.getElementById("stat-protected").textContent = protectedCount.length;
+    document.getElementById("stat-missing").textContent = missing.length;
     document.getElementById("stat-removed").textContent = removed.length;
 }
 
 async function loadTorrents() {
     try {
-        const showRemoved = document.getElementById("show-removed").checked;
-        torrents = await fetchJSON("/api/torrents?show_removed=" + showRemoved);
+        torrents = await fetchJSON("/api/torrents?show_removed=true");
         renderTorrents();
         updateStats();
     } catch (e) {
@@ -191,6 +201,12 @@ async function loadStatus() {
 
 async function toggleProtect(hash, action) {
     await fetchJSON(`/api/torrents/${hash}/${action}`, { method: "POST" });
+    await loadTorrents();
+}
+
+async function dismissTorrent(hash, name) {
+    if (!confirm(`Dismiss "${name}"? This removes it from Cleanrr's tracking.`)) return;
+    await fetchJSON(`/api/torrents/${hash}/dismiss`, { method: "POST" });
     await loadTorrents();
 }
 
@@ -254,6 +270,7 @@ document.getElementById("settings-modal").addEventListener("click", (e) => {
 });
 
 document.getElementById("show-removed").addEventListener("change", loadTorrents);
+document.getElementById("show-missing").addEventListener("change", renderTorrents);
 document.getElementById("check-now-btn").addEventListener("click", triggerCheck);
 
 // Initial load

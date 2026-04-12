@@ -143,7 +143,7 @@ main {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -170,6 +170,10 @@ main {
 
 .stat-info .stat-value {
     color: var(--info);
+}
+
+.stat-missing .stat-value {
+    color: var(--warning);
 }
 
 .stat-danger .stat-value {
@@ -496,7 +500,7 @@ tbody tr.removed-row {
 
 @media (max-width: 900px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .col-ratio,

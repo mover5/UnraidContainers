@@ -71,6 +71,12 @@ def unprotect_torrent(torrent_hash):
     return jsonify({"status": "ok"})
 
 
+@app.route("/api/torrents/<torrent_hash>/dismiss", methods=["POST"])
+def dismiss_torrent(torrent_hash):
+    db.mark_removed(torrent_hash)
+    return jsonify({"status": "ok"})
+
+
 @app.route("/api/torrents/<torrent_hash>", methods=["DELETE"])
 def remove_torrent(torrent_hash):
     success = scheduler.remove_torrent_now(torrent_hash)

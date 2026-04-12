@@ -47,6 +47,7 @@ run.py → app/main.py (Flask + API routes)
 | `/api/torrents` | GET | List torrents (`?show_removed=true` includes removed) |
 | `/api/torrents/<hash>/protect` | POST | Protect from auto-removal |
 | `/api/torrents/<hash>/unprotect` | POST | Remove protection |
+| `/api/torrents/<hash>/dismiss` | POST | Dismiss a missing torrent from tracking |
 | `/api/torrents/<hash>` | DELETE | Immediately remove and delete data |
 | `/api/settings` | GET | Get seed_time_days and check_interval_minutes |
 | `/api/settings` | PUT | Update settings (triggers recalculation if seed_time changes) |

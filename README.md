@@ -4,12 +4,13 @@ Docker containers for Unraid, published to GitHub Container Registry (ghcr.io).
 
 ## Containers
 
-| Container | Description | Image |
-|---|---|---|
-| [claude-worker](containers/claude-worker/) | Dev environment with Claude Code, Node.js, .NET, Python, and SSH access | `ghcr.io/mover5/claude-worker:latest` |
-| [cleanrr](containers/cleanrr/) | Torrent lifecycle manager for Deluge with web dashboard | `ghcr.io/mover5/cleanrr:latest` |
-| [database-backup](containers/database-backup/) | Scheduled database backups (MySQL, Azure SQL) with web dashboard | `ghcr.io/mover5/database-backup:latest` |
-| [azurite-azure-storage](containers/azurite-azure-storage/) | Local Azure Storage emulator (Azurite) with web-based Storage Explorer | `ghcr.io/mover5/azurite-azure-storage:latest` |
+| Container | Description | Build | Version |
+|---|---|---|---|
+| [claude-worker](containers/claude-worker/) | Dev environment with Claude Code, Node.js, .NET, Python, and SSH access | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-claude-worker.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-claude-worker.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/claude-worker/latest_tag?trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/claude-worker) |
+| [cleanrr](containers/cleanrr/) | Torrent lifecycle manager for Deluge with web dashboard | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-cleanrr.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-cleanrr.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/cleanrr/latest_tag?trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/cleanrr) |
+| [database-backup](containers/database-backup/) | Scheduled database backups (MySQL, Azure SQL) with web dashboard | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-database-backup.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-database-backup.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/database-backup/latest_tag?trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/database-backup) |
+| [azurite-azure-storage](containers/azurite-azure-storage/) | Local Azure Storage emulator (Azurite) with web-based Storage Explorer | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-azurite-azure-storage.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-azurite-azure-storage.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/azurite-azure-storage/latest_tag?trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/azurite-azure-storage) |
+| [caddy-reverse-proxy](containers/caddy-reverse-proxy/) | Caddy reverse proxy with automatic HTTPS via Cloudflare DNS-01 challenge | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-caddy-reverse-proxy.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-caddy-reverse-proxy.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/caddy-reverse-proxy/latest_tag?trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/caddy-reverse-proxy) |
 
 ## Running a container
 
@@ -59,6 +60,7 @@ containers/
   build-cleanrr.yml         # Triggers on changes to cleanrr/
   build-database-backup.yml # Triggers on changes to database-backup/
   build-azurite-azure-storage.yml # Triggers on changes to azurite-azure-storage/
+  build-caddy-reverse-proxy.yml   # Triggers on changes to caddy-reverse-proxy/
   build-all.yml             # Manual trigger to rebuild all containers
   sync-templates.yml        # Auto-syncs unraid-template.xml files to templates/
 templates/                  # Flat directory of Unraid templates (auto-generated)

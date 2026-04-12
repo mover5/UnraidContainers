@@ -85,3 +85,6 @@ Python-based scheduled database backup tool with a Flask web dashboard (port 800
 
 ### azurite-azure-storage
 Local Azure Storage emulator powered by Azurite with a built-in web UI (sebagomez/azurestorageexplorer). Exposes Blob (10000), Queue (10001), and Table (10002) storage APIs plus a Storage Explorer web dashboard (8080) for browsing blobs, queues, tables, and file shares. Uses supervisord to run both Azurite (Node.js) and the explorer (.NET Blazor) in a single container. Data persists in `/data`.
+
+### caddy-reverse-proxy
+Caddy reverse proxy with the Cloudflare DNS plugin for automatic SSL certificate provisioning via DNS-01 challenges. Ideal for servers behind Tailscale or NAT where HTTP-01 challenges cannot reach the server. Routes subdomains to Docker containers with auto-managed SSL certificates. Exposes ports 80 (HTTP) and 443 (HTTPS). Requires a Cloudflare API token with Zone:DNS:Edit permission.

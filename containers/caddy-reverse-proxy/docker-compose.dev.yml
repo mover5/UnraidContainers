@@ -1,0 +1,22 @@
+# Local dev: builds the container image and runs it with the mock backend
+# so you can click around the full UI without Cloudflare, a real domain,
+# or actual cert state.
+#
+#   docker compose -f docker-compose.dev.yml up --build
+#   open http://localhost:9999
+
+services:
+  caddy-ui-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: caddy-reverse-proxy:dev
+    container_name: caddy-reverse-proxy-dev
+    environment:
+      CADDY_BACKEND: mock
+      FLASK_DEBUG: "1"
+    ports:
+      - "9999:9999"
+    # Run only the Flask UI in mock mode — no Caddy needed, no certs touched.
+    entrypoint: ["/opt/venv/bin/python", "/app/web/app.py"]
+    working_dir: /app/web

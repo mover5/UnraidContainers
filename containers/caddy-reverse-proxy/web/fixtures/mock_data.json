@@ -1,0 +1,81 @@
+{
+  "global": {
+    "acme_email": "admin@example.com",
+    "dns_provider": "cloudflare",
+    "dns_token_env": "CF_API_TOKEN"
+  },
+  "routes": [
+    {
+      "id": "fixture-cleanrr",
+      "subdomain": "cleanrr.example.com",
+      "upstream": "192.168.1.100:9494",
+      "enabled": true,
+      "description": "Torrent lifecycle dashboard",
+      "extra_directives": ""
+    },
+    {
+      "id": "fixture-backups",
+      "subdomain": "backups.example.com",
+      "upstream": "192.168.1.100:8008",
+      "enabled": true,
+      "description": "Database backup dashboard",
+      "extra_directives": ""
+    },
+    {
+      "id": "fixture-azurite",
+      "subdomain": "azurite.example.com",
+      "upstream": "192.168.1.100:8080",
+      "enabled": true,
+      "description": "Azure Storage emulator",
+      "extra_directives": ""
+    },
+    {
+      "id": "fixture-jellyfin",
+      "subdomain": "jellyfin.example.com",
+      "upstream": "media-server:8096",
+      "enabled": true,
+      "description": "Hostname-based upstream",
+      "extra_directives": ""
+    },
+    {
+      "id": "fixture-grafana",
+      "subdomain": "grafana.example.com",
+      "upstream": "192.168.1.100:3000",
+      "enabled": false,
+      "description": "Disabled — testing toggle",
+      "extra_directives": ""
+    },
+    {
+      "id": "fixture-strict",
+      "subdomain": "strict.example.com",
+      "upstream": "192.168.1.100:9000",
+      "enabled": true,
+      "description": "Has extra directives",
+      "extra_directives": "header X-Frame-Options DENY\nencode gzip"
+    }
+  ],
+  "certs": [
+    { "domain": "cleanrr.example.com", "issuer": "Let's Encrypt", "not_after_days": 60, "status": "ok" },
+    { "domain": "backups.example.com", "issuer": "Let's Encrypt", "not_after_days": 12, "status": "warning" },
+    { "domain": "azurite.example.com", "issuer": "Let's Encrypt", "not_after_days": -3, "status": "expired" },
+    { "domain": "jellyfin.example.com", "issuer": "Let's Encrypt", "not_after_days": 47, "status": "ok" },
+    { "domain": "strict.example.com", "status": "missing" }
+  ],
+  "logs": [
+    "2026/05/09 10:23:45.123\tINFO\tadmin\tadmin endpoint started\t{\"address\": \"127.0.0.1:2019\"}",
+    "2026/05/09 10:23:45.456\tINFO\thttp\tenabling automatic HTTP->HTTPS redirects",
+    "2026/05/09 10:23:46.001\tINFO\ttls.cache.maintenance\tstarted background certificate maintenance",
+    "2026/05/09 10:23:47.234\tINFO\thttp\tservers started\t{\"http_port\": 80, \"https_port\": 443}",
+    "2026/05/09 10:24:01.567\tINFO\ttls.obtain\tacquiring lock\t{\"identifier\": \"cleanrr.example.com\"}",
+    "2026/05/09 10:24:01.789\tINFO\ttls.obtain\tlock acquired\t{\"identifier\": \"cleanrr.example.com\"}",
+    "2026/05/09 10:24:03.012\tINFO\ttls.issuance.acme\twaiting on internal rate limiter\t{\"identifiers\": [\"cleanrr.example.com\"]}",
+    "2026/05/09 10:24:03.345\tINFO\ttls.issuance.acme\tdone waiting on internal rate limiter",
+    "2026/05/09 10:24:08.678\tINFO\ttls.issuance.acme.acme_client\ttrying to solve challenge\t{\"identifier\": \"cleanrr.example.com\", \"challenge_type\": \"dns-01\"}",
+    "2026/05/09 10:24:42.901\tINFO\ttls.issuance.acme.acme_client\tauthorization finalized\t{\"identifier\": \"cleanrr.example.com\"}",
+    "2026/05/09 10:24:44.234\tINFO\ttls.obtain\tcertificate obtained successfully\t{\"identifier\": \"cleanrr.example.com\"}",
+    "2026/05/09 10:24:45.567\tINFO\ttls.obtain\treleasing lock\t{\"identifier\": \"cleanrr.example.com\"}",
+    "2026/05/09 10:31:12.890\tINFO\thttp.handlers.reverse_proxy\tupstream roundtrip\t{\"upstream\": \"192.168.1.100:9494\", \"status\": 200, \"duration\": 0.0234}",
+    "2026/05/09 10:32:01.123\tINFO\thttp.handlers.reverse_proxy\tupstream roundtrip\t{\"upstream\": \"192.168.1.100:8008\", \"status\": 200, \"duration\": 0.0156}",
+    "2026/05/09 10:33:44.456\tWARN\thttp.handlers.reverse_proxy\tdialing upstream failed; retrying\t{\"upstream\": \"192.168.1.100:3000\", \"error\": \"connection refused\"}"
+  ]
+}

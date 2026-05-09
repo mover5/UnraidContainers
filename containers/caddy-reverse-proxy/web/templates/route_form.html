@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ form_title }} — Caddy Admin{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h2>{{ form_title }}</h2>
+  <a href="{{ url_for('routes_list') }}" class="btn btn-ghost">Cancel</a>
+</div>
+
+<form method="post" action="{{ form_action }}" class="form-card">
+  <label>
+    <span class="label-text">Subdomain</span>
+    <input type="text" name="subdomain" value="{{ route.subdomain }}"
+           placeholder="grafana.example.com" required autofocus>
+    <span class="hint">Full hostname including domain. Caddy will obtain a cert for this.</span>
+  </label>
+
+  <label>
+    <span class="label-text">Upstream</span>
+    <div class="input-with-status">
+      <input type="text" id="upstream" name="upstream" value="{{ route.upstream }}"
+             placeholder="192.168.1.100:3000" required autocomplete="off">
+      <span class="status-indicator" id="upstream-status" aria-live="polite"></span>
+    </div>
+    <span class="hint" id="upstream-hint">Where Caddy should send traffic. Format: <code>host:port</code>. Reachability is tested live.</span>
+  </label>
+
+  <label>
+    <span class="label-text">Description <span class="muted">(optional)</span></span>
+    <input type="text" name="description" value="{{ route.description }}"
+           placeholder="What is this service?">
+  </label>
+
+  <label>
+    <span class="label-text">Extra directives <span class="muted">(optional, advanced)</span></span>
+    <textarea name="extra_directives" rows="4"
+              placeholder="header X-Frame-Options DENY&#10;encode gzip">{{ route.extra_directives }}</textarea>
+    <span class="hint">Raw Caddyfile directives, one per line. Inserted inside the route block.</span>
+  </label>
+
+  <label class="checkbox-row">
+    <input type="checkbox" name="enabled" {% if route.enabled %}checked{% endif %}>
+    <span>Enabled</span>
+  </label>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save & reload</button>
+    <a href="{{ url_for('routes_list') }}" class="btn btn-ghost">Cancel</a>
+  </div>
+</form>
+
+<script>
+(function () {
+  const input = document.getElementById('upstream');
+  const indicator = document.getElementById('upstream-status');
+  const hint = document.getElementById('upstream-hint');
+  // capture original hint nodes so we can restore them and append safely
+  const baseNodes = Array.from(hint.childNodes);
+  let timer = null;
+  let inflight = null;
+  let seq = 0;
+
+  function clearMessage() {
+    hint.replaceChildren(...baseNodes);
+  }
+
+  function setMessage(text, kind) {
+    clearMessage();
+    hint.appendChild(document.createTextNode(' · '));
+    const span = document.createElement('span');
+    span.className = 'upstream-msg ' + (kind === 'fail' ? 'msg-fail' : 'msg-ok');
+    span.textContent = text;
+    hint.appendChild(span);
+  }
+
+  function setState(state, message) {
+    indicator.classList.remove('status-ok', 'status-fail', 'status-pending');
+    indicator.textContent = '';
+    indicator.title = message || '';
+    if (state === 'ok') {
+      indicator.classList.add('status-ok');
+      indicator.textContent = '✓';
+    } else if (state === 'fail') {
+      indicator.classList.add('status-fail');
+      indicator.textContent = '✕';
+    } else if (state === 'pending') {
+      indicator.classList.add('status-pending');
+      indicator.textContent = '⋯';
+    }
+    if (message) {
+      setMessage(message, state);
+    } else {
+      clearMessage();
+    }
+  }
+
+  async function check(value) {
+    const mySeq = ++seq;
+    setState('pending', 'checking...');
+    if (inflight) inflight.abort();
+    const ctrl = new AbortController();
+    inflight = ctrl;
+    try {
+      const r = await fetch('{{ url_for("api_check_upstream") }}?upstream=' + encodeURIComponent(value), { signal: ctrl.signal });
+      const data = await r.json();
+      if (mySeq !== seq) return;
+      setState(data.ok ? 'ok' : 'fail', data.message);
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      if (mySeq !== seq) return;
+      setState('fail', 'check failed');
+    }
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    const v = input.value.trim();
+    if (!v) { setState(null, ''); return; }
+    timer = setTimeout(() => check(v), 500);
+  }
+
+  input.addEventListener('input', schedule);
+  input.addEventListener('blur', schedule);
+  if (input.value.trim()) check(input.value.trim());
+})();
+</script>
+
+{% endblock %}

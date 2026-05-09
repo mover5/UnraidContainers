@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Logs — Caddy Admin{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h2>Caddy logs <span class="muted">(last {{ n }} lines)</span></h2>
+  <div class="tab-actions">
+    <a href="{{ url_for('logs', n=50) }}" class="btn btn-ghost btn-sm {% if n == 50 %}btn-active{% endif %}">50</a>
+    <a href="{{ url_for('logs', n=200) }}" class="btn btn-ghost btn-sm {% if n == 200 %}btn-active{% endif %}">200</a>
+    <a href="{{ url_for('logs', n=1000) }}" class="btn btn-ghost btn-sm {% if n == 1000 %}btn-active{% endif %}">1000</a>
+    <a href="{{ url_for('logs', n=n) }}" class="btn btn-ghost btn-sm">Refresh</a>
+  </div>
+</div>
+
+{% if lines %}
+<pre class="code-block log-block">{% for line in lines %}{{ line }}
+{% endfor %}</pre>
+{% else %}
+<div class="empty"><p>No log lines.</p></div>
+{% endif %}
+
+{% endblock %}

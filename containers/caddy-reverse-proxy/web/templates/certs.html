@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Certificates — Caddy Admin{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h2>Certificates <span class="muted">({{ certs|length }})</span></h2>
+</div>
+
+{% if certs %}
+<table class="data">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Domain</th>
+      <th>Issuer</th>
+      <th>Expires</th>
+      <th>Days remaining</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in certs %}
+    <tr>
+      <td><span class="pill pill-{{ c.status }}">{{ c.status }}</span></td>
+      <td><code>{{ c.domain }}</code></td>
+      <td>{{ c.issuer or '—' }}</td>
+      <td>{{ c.not_after[:10] if c.not_after else '—' }}</td>
+      <td>{{ c.days_remaining if c.days_remaining is not none else '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="hint">
+  Certs are issued automatically by Caddy when the route first receives traffic.
+  A "missing" status for an enabled route is normal until the first request.
+</p>
+{% else %}
+<div class="empty"><p>No certificates yet.</p></div>
+{% endif %}
+
+{% endblock %}

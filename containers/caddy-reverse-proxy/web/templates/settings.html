@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Settings — Caddy Admin{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h2>Global settings</h2>
+</div>
+
+<form method="post" action="{{ url_for('settings') }}" class="form-card">
+  <label>
+    <span class="label-text">ACME email <span class="muted">(optional)</span></span>
+    <input type="email" name="acme_email" value="{{ g.acme_email }}"
+           placeholder="you@example.com">
+    <span class="hint">Used by Let's Encrypt for expiry warnings. Recommended.</span>
+  </label>
+
+  <label>
+    <span class="label-text">DNS provider</span>
+    <select name="dns_provider">
+      <option value="cloudflare" {% if g.dns_provider == 'cloudflare' %}selected{% endif %}>cloudflare</option>
+      <option value="route53" {% if g.dns_provider == 'route53' %}selected{% endif %}>route53</option>
+      <option value="digitalocean" {% if g.dns_provider == 'digitalocean' %}selected{% endif %}>digitalocean</option>
+      <option value="namecheap" {% if g.dns_provider == 'namecheap' %}selected{% endif %}>namecheap</option>
+    </select>
+    <span class="hint">
+      Only Cloudflare is bundled in the image. Other providers require rebuilding the
+      image with the matching <code>caddy-dns/&lt;provider&gt;</code> plugin.
+    </span>
+  </label>
+
+  <label>
+    <span class="label-text">DNS token env var name</span>
+    <input type="text" name="dns_token_env" value="{{ g.dns_token_env }}"
+           placeholder="CF_API_TOKEN" required>
+    <span class="hint">
+      The env var Caddy reads for the DNS API token. The value itself is set on the container, not here.
+    </span>
+  </label>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save & reload</button>
+  </div>
+</form>
+
+{% endblock %}

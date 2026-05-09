@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Caddyfile — Caddy Admin{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h2>Caddyfile preview</h2>
+  <span class="muted">read-only · regenerated from routes</span>
+</div>
+
+<pre class="code-block">{{ content }}</pre>
+
+{% endblock %}

@@ -61,15 +61,34 @@ Otherwise, create the container manually in Unraid:
 - **Port mappings (if not host network):**
   - `80` -> `80` (HTTP, redirects to HTTPS)
   - `443` -> `443` (HTTPS)
+- **Port mappings (always needed):**
+  - `9999` -> `9999` (admin web UI)
 - **Variables:**
   - `CF_API_TOKEN` = the token from Step 3
 - **Volumes:**
-  - `/mnt/user/appdata/caddy-reverse-proxy/config` -> `/etc/caddy` (your Caddyfile lives here)
+  - `/mnt/user/appdata/caddy-reverse-proxy/config` -> `/etc/caddy` (Caddyfile + routes.json)
   - `/mnt/user/appdata/caddy-reverse-proxy/data` -> `/data` (SSL certs and Caddy state)
+  - `/mnt/user/appdata/caddy-reverse-proxy/logs` -> `/var/log/caddy` (log file, optional)
 
 Start the container once to let it create the default Caddyfile.
 
-## Step 5: Configure the Caddyfile
+## Step 5: Configure routes via the web UI (recommended)
+
+Open `http://<unraid-ip>:9999` in a browser. You'll see:
+
+- **Routes** — add, edit, enable/disable, or delete subdomain → upstream
+  mappings. Save and Caddy is reloaded automatically; no container restart.
+- **Certificates** — every cert Caddy holds, with issuer, expiry, and a
+  color-coded status (ok / warning at <30 days / expired / missing).
+- **Settings** — ACME email and DNS provider configuration.
+- **Caddyfile** — read-only preview of the file Caddy is currently running.
+- **Logs** — tail of Caddy's log output.
+
+If you have an existing Caddyfile from a previous version, the Routes page
+shows a one-time **Import** banner that pulls simple
+`host { reverse_proxy ip:port }` blocks into the UI.
+
+## Step 5 (alternative): Edit the Caddyfile by hand
 
 Edit `/mnt/user/appdata/caddy-reverse-proxy/config/Caddyfile` on your Unraid server.
 
@@ -107,9 +126,9 @@ This depends on your networking setup:
 
 For Unraid where each container is configured separately, using your server's LAN IP (e.g. `192.168.1.100:<port>`) is the simplest and most reliable option.
 
-### Adding a new service
+### Adding a new service (manual mode)
 
-Just add a block to the Caddyfile and restart the Caddy container:
+Add a block to the Caddyfile and reload:
 
 ```Caddyfile
 newservice.yourdomain.com {
@@ -117,7 +136,16 @@ newservice.yourdomain.com {
 }
 ```
 
+```bash
+docker exec caddy-reverse-proxy caddy reload --config /etc/caddy/Caddyfile
+```
+
 No DNS changes needed (the wildcard record covers it). Caddy automatically gets an SSL cert on first request.
+
+> **Heads up:** if the web UI later detects this hand-edited file, the
+> "Import existing routes?" banner will appear once. Importing brings these
+> entries under UI management (the file gets a `# managed-by-ui` marker on
+> next save). Dismiss the banner to keep editing by hand.
 
 ## Step 6: Restart and Verify
 
@@ -141,9 +169,10 @@ Common issues:
 
 | Task | What to do |
 |------|------------|
-| Add a new service | Add block to Caddyfile, restart Caddy |
-| Change a port | Edit the `reverse_proxy` line in Caddyfile, restart |
+| Add a new service | Open the web UI on port 9999 → New route → Save |
+| Change a port | Edit the route in the UI → Save (live reload) |
 | Add a new subdomain | Nothing — wildcard DNS handles it |
 | Renew SSL certs | Nothing — Caddy auto-renews |
-| Check cert status | `docker exec caddy-reverse-proxy caddy list-certificates` |
-| Reload without restart | `docker exec caddy-reverse-proxy caddy reload --config /etc/caddy/Caddyfile` |
+| Check cert status | Web UI → Certificates tab |
+| View logs | Web UI → Logs tab |
+| Reload manually | Web UI → Reload button (top right) |

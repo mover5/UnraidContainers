@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Routes — Caddy Admin{% endblock %}
+{% block content %}
+
+{% if show_import_banner %}
+<div class="banner">
+  <div>
+    <strong>Existing Caddyfile detected.</strong>
+    Import its routes into the UI? Existing entries that look like
+    <code>{% raw %}host { reverse_proxy ip:port }{% endraw %}</code> will be added.
+    Anything more complex stays untouched and you can re-add it via the form.
+  </div>
+  <div class="banner-actions">
+    <form method="post" action="{{ url_for('import_existing') }}" class="inline">
+      <button type="submit" class="btn btn-primary">Import</button>
+    </form>
+    <form method="post" action="{{ url_for('dismiss_import') }}" class="inline">
+      <button type="submit" class="btn btn-ghost">Dismiss</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="page-head">
+  <h2>Routes <span class="muted">({{ routes|length }})</span></h2>
+  <a href="{{ url_for('routes_new') }}" class="btn btn-primary">+ New route</a>
+</div>
+
+{% if routes %}
+<table class="data">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Subdomain</th>
+      <th>Upstream</th>
+      <th>Description</th>
+      <th class="col-actions">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in routes %}
+    <tr class="{% if not r.enabled %}row-disabled{% endif %}">
+      <td>
+        <form method="post" action="{{ url_for('routes_toggle', route_id=r.id) }}" class="inline">
+          <button type="submit" class="toggle {% if r.enabled %}toggle-on{% else %}toggle-off{% endif %}"
+                  title="{% if r.enabled %}Disable{% else %}Enable{% endif %}">
+            <span class="toggle-knob"></span>
+          </button>
+        </form>
+      </td>
+      <td><code>{{ r.subdomain }}</code></td>
+      <td><code>{{ r.upstream }}</code></td>
+      <td class="muted">{{ r.description }}</td>
+      <td class="col-actions">
+        <a href="{{ url_for('routes_edit', route_id=r.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+        <form method="post" action="{{ url_for('routes_delete', route_id=r.id) }}" class="inline"
+              onsubmit="return confirm('Delete {{ r.subdomain }}?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <p>No routes yet.</p>
+  <a href="{{ url_for('routes_new') }}" class="btn btn-primary">Add your first route</a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Caddy Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">caddy</span>
+      <span class="subtitle">reverse-proxy admin</span>
+      {% if mode == 'mock' %}<span class="badge badge-mock">MOCK MODE</span>{% endif %}
+      {% if not managed %}<span class="badge badge-warn">manual mode</span>{% endif %}
+    </div>
+    <nav class="tabs">
+      <a href="{{ url_for('routes_list') }}" class="tab {% if active=='routes' %}tab-active{% endif %}">Routes</a>
+      <a href="{{ url_for('certs') }}" class="tab {% if active=='certs' %}tab-active{% endif %}">Certificates</a>
+      <a href="{{ url_for('settings') }}" class="tab {% if active=='settings' %}tab-active{% endif %}">Settings</a>
+      <a href="{{ url_for('caddyfile') }}" class="tab {% if active=='caddyfile' %}tab-active{% endif %}">Caddyfile</a>
+      <a href="{{ url_for('logs') }}" class="tab {% if active=='logs' %}tab-active{% endif %}">Logs</a>
+    </nav>
+    <div class="actions">
+      <form method="post" action="{{ url_for('reload_now') }}" class="inline">
+        <button type="submit" class="btn btn-ghost" title="Validate and reload Caddy">Reload</button>
+      </form>
+      {% if mode == 'mock' %}
+      <form method="post" action="{{ url_for('reset') }}" class="inline" onsubmit="return confirm('Reset mock data to fixtures?')">
+        <button type="submit" class="btn btn-ghost" title="Reset mock data">Reset mocks</button>
+      </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, msg in messages %}
+            <div class="flash flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

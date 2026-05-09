@@ -10,9 +10,12 @@
 <form method="post" action="{{ form_action }}" class="form-card">
   <label>
     <span class="label-text">Subdomain</span>
-    <input type="text" name="subdomain" value="{{ route.subdomain }}"
-           placeholder="grafana.example.com" required autofocus>
-    <span class="hint">Full hostname including domain. Caddy will obtain a cert for this.</span>
+    <div class="input-with-status">
+      <input type="text" id="subdomain" name="subdomain" value="{{ route.subdomain }}"
+             placeholder="grafana.example.com" required autofocus autocomplete="off">
+      <span class="status-indicator" id="subdomain-status" aria-live="polite"></span>
+    </div>
+    <span class="hint" id="subdomain-hint">Full hostname including domain. Caddy will obtain a cert for this. Checked for duplicates as you type.</span>
   </label>
 
   <label>
@@ -51,77 +54,85 @@
 
 <script>
 (function () {
-  const input = document.getElementById('upstream');
-  const indicator = document.getElementById('upstream-status');
-  const hint = document.getElementById('upstream-hint');
-  // capture original hint nodes so we can restore them and append safely
-  const baseNodes = Array.from(hint.childNodes);
-  let timer = null;
-  let inflight = null;
-  let seq = 0;
+  function setupCheck({ inputId, statusId, hintId, endpoint, paramName, extraParams }) {
+    const input = document.getElementById(inputId);
+    const indicator = document.getElementById(statusId);
+    const hint = document.getElementById(hintId);
+    const baseNodes = Array.from(hint.childNodes);
+    let timer = null;
+    let inflight = null;
+    let seq = 0;
 
-  function clearMessage() {
-    hint.replaceChildren(...baseNodes);
-  }
-
-  function setMessage(text, kind) {
-    clearMessage();
-    hint.appendChild(document.createTextNode(' · '));
-    const span = document.createElement('span');
-    span.className = 'upstream-msg ' + (kind === 'fail' ? 'msg-fail' : 'msg-ok');
-    span.textContent = text;
-    hint.appendChild(span);
-  }
-
-  function setState(state, message) {
-    indicator.classList.remove('status-ok', 'status-fail', 'status-pending');
-    indicator.textContent = '';
-    indicator.title = message || '';
-    if (state === 'ok') {
-      indicator.classList.add('status-ok');
-      indicator.textContent = '✓';
-    } else if (state === 'fail') {
-      indicator.classList.add('status-fail');
-      indicator.textContent = '✕';
-    } else if (state === 'pending') {
-      indicator.classList.add('status-pending');
-      indicator.textContent = '⋯';
+    function clearMessage() {
+      hint.replaceChildren(...baseNodes);
     }
-    if (message) {
-      setMessage(message, state);
-    } else {
+
+    function setMessage(text, kind) {
       clearMessage();
+      hint.appendChild(document.createTextNode(' · '));
+      const span = document.createElement('span');
+      span.className = 'upstream-msg ' + (kind === 'fail' ? 'msg-fail' : 'msg-ok');
+      span.textContent = text;
+      hint.appendChild(span);
     }
-  }
 
-  async function check(value) {
-    const mySeq = ++seq;
-    setState('pending', 'checking...');
-    if (inflight) inflight.abort();
-    const ctrl = new AbortController();
-    inflight = ctrl;
-    try {
-      const r = await fetch('{{ url_for("api_check_upstream") }}?upstream=' + encodeURIComponent(value), { signal: ctrl.signal });
-      const data = await r.json();
-      if (mySeq !== seq) return;
-      setState(data.ok ? 'ok' : 'fail', data.message);
-    } catch (e) {
-      if (e.name === 'AbortError') return;
-      if (mySeq !== seq) return;
-      setState('fail', 'check failed');
+    function setState(state, message) {
+      indicator.classList.remove('status-ok', 'status-fail', 'status-pending');
+      indicator.textContent = '';
+      indicator.title = message || '';
+      if (state === 'ok') { indicator.classList.add('status-ok'); indicator.textContent = '✓'; }
+      else if (state === 'fail') { indicator.classList.add('status-fail'); indicator.textContent = '✕'; }
+      else if (state === 'pending') { indicator.classList.add('status-pending'); indicator.textContent = '⋯'; }
+      if (message) setMessage(message, state); else clearMessage();
     }
+
+    async function check(value) {
+      const mySeq = ++seq;
+      setState('pending', 'checking...');
+      if (inflight) inflight.abort();
+      const ctrl = new AbortController();
+      inflight = ctrl;
+      const params = new URLSearchParams({ [paramName]: value, ...(extraParams || {}) });
+      try {
+        const r = await fetch(endpoint + '?' + params.toString(), { signal: ctrl.signal });
+        const data = await r.json();
+        if (mySeq !== seq) return;
+        setState(data.ok ? 'ok' : 'fail', data.message);
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        if (mySeq !== seq) return;
+        setState('fail', 'check failed');
+      }
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      const v = input.value.trim();
+      if (!v) { setState(null, ''); return; }
+      timer = setTimeout(() => check(v), 500);
+    }
+
+    input.addEventListener('input', schedule);
+    input.addEventListener('blur', schedule);
+    if (input.value.trim()) check(input.value.trim());
   }
 
-  function schedule() {
-    clearTimeout(timer);
-    const v = input.value.trim();
-    if (!v) { setState(null, ''); return; }
-    timer = setTimeout(() => check(v), 500);
-  }
+  setupCheck({
+    inputId: 'subdomain',
+    statusId: 'subdomain-status',
+    hintId: 'subdomain-hint',
+    endpoint: '{{ url_for("api_check_subdomain") }}',
+    paramName: 'subdomain',
+    extraParams: { route_id: '{{ route.id }}' },
+  });
 
-  input.addEventListener('input', schedule);
-  input.addEventListener('blur', schedule);
-  if (input.value.trim()) check(input.value.trim());
+  setupCheck({
+    inputId: 'upstream',
+    statusId: 'upstream-status',
+    hintId: 'upstream-hint',
+    endpoint: '{{ url_for("api_check_upstream") }}',
+    paramName: 'upstream',
+  });
 })();
 </script>
 

@@ -273,6 +273,20 @@ class RealBackend:
         # not exposed for the real backend (would wipe user data)
         raise RuntimeError("reset is only supported in mock mode")
 
+    def check_subdomain(self, subdomain: str, route_id: str = "") -> dict:
+        s = subdomain.strip().lower()
+        if not s:
+            return {"ok": False, "message": "empty"}
+        if "." not in s:
+            return {"ok": False, "message": "must contain a dot"}
+        for r in self.list_routes():
+            if r.id == route_id:
+                continue
+            if r.subdomain.lower() == s:
+                article = "an enabled" if r.enabled else "a disabled"
+                return {"ok": False, "message": f"already used by {article} route"}
+        return {"ok": True, "message": "available"}
+
     def check_upstream(self, upstream: str) -> dict:
         import socket
 

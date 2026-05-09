@@ -58,6 +58,16 @@ def routes_list():
 def routes_new():
     if request.method == "POST":
         route = _route_from_form(request.form, route_id="")
+        sub_check = backend.check_subdomain(route.subdomain)
+        if not sub_check["ok"]:
+            flash(f"Subdomain {route.subdomain!r} {sub_check['message']}", "error")
+            return render_template(
+                "route_form.html",
+                active="routes",
+                route=route,
+                form_action=url_for("routes_new"),
+                form_title="New route",
+            )
         backend.upsert_route(route)
         result = backend.reload()
         if not result.ok:
@@ -88,6 +98,16 @@ def routes_edit(route_id):
         abort(404)
     if request.method == "POST":
         route = _route_from_form(request.form, route_id=route_id)
+        sub_check = backend.check_subdomain(route.subdomain, route_id=route_id)
+        if not sub_check["ok"]:
+            flash(f"Subdomain {route.subdomain!r} {sub_check['message']}", "error")
+            return render_template(
+                "route_form.html",
+                active="routes",
+                route=route,
+                form_action=url_for("routes_edit", route_id=route_id),
+                form_title=f"Edit {existing.subdomain}",
+            )
         backend.upsert_route(route)
         result = backend.reload()
         if not result.ok:
@@ -222,6 +242,13 @@ def logs():
 def api_check_upstream():
     upstream = request.args.get("upstream", "")
     return jsonify(backend.check_upstream(upstream))
+
+
+@app.route("/api/check-subdomain")
+def api_check_subdomain():
+    subdomain = request.args.get("subdomain", "")
+    route_id = request.args.get("route_id", "")
+    return jsonify(backend.check_subdomain(subdomain, route_id))
 
 
 # ---------- actions ----------

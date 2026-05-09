@@ -8,16 +8,19 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/mover5/UnraidContainers/issues</Support>
   <Overview>
-    Caddy reverse proxy with automatic HTTPS via Cloudflare DNS-01 challenge.
-    Routes subdomains to Docker containers with auto-managed SSL certificates.
+    Caddy reverse proxy with automatic HTTPS via Cloudflare DNS-01 challenge,
+    plus a web UI for managing routes and viewing certificate status without
+    restarting the container.
   </Overview>
   <Category>Network:Web</Category>
   <Description>
     Caddy reverse proxy built with the Cloudflare DNS plugin for automatic SSL certificate
     provisioning via DNS-01 challenges. Ideal for servers behind Tailscale or NAT where
-    HTTP-01 challenges cannot reach the server. Edit the Caddyfile to map subdomains to
-    your containers. Certificates are automatically obtained, renewed, and managed by Caddy.
+    HTTP-01 challenges cannot reach the server. The bundled web UI on port 9999 lets you
+    add, edit, and toggle routes (live-reloaded — no container restart) and shows certificate
+    status, expiry, and Caddy logs. The Caddyfile remains editable by hand if you prefer.
   </Description>
+  <WebUI>http://[IP]:[PORT:9999]/</WebUI>
   <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/caddy-reverse-proxy/icon.png</Icon>
   <ExtraParams/>
   <PostArgs/>
@@ -28,11 +31,13 @@
   <!-- Ports -->
   <Config Name="HTTP Port" Target="80" Default="80" Mode="tcp" Description="HTTP port (redirects to HTTPS)" Type="Port" Display="always" Required="true" Mask="false"/>
   <Config Name="HTTPS Port" Target="443" Default="443" Mode="tcp" Description="HTTPS port" Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Admin UI Port" Target="9999" Default="9999" Mode="tcp" Description="Web UI for managing routes and viewing cert status" Type="Port" Display="always" Required="true" Mask="false"/>
 
   <!-- Environment Variables -->
   <Config Name="Cloudflare API Token" Target="CF_API_TOKEN" Default="" Mode="" Description="Cloudflare API token with Zone:DNS:Edit permission for your domain" Type="Variable" Display="always" Required="true" Mask="true"/>
 
   <!-- Volumes -->
-  <Config Name="Caddy Config" Target="/etc/caddy" Default="/mnt/user/appdata/caddy-reverse-proxy/config" Mode="rw" Description="Caddyfile and config directory" Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Caddy Config" Target="/etc/caddy" Default="/mnt/user/appdata/caddy-reverse-proxy/config" Mode="rw" Description="Caddyfile and routes.json (managed by the web UI)" Type="Path" Display="always" Required="true" Mask="false"/>
   <Config Name="Caddy Data" Target="/data" Default="/mnt/user/appdata/caddy-reverse-proxy/data" Mode="rw" Description="SSL certificates and persistent data" Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Caddy Logs" Target="/var/log/caddy" Default="/mnt/user/appdata/caddy-reverse-proxy/logs" Mode="rw" Description="Caddy log file (tailed by the web UI)" Type="Path" Display="advanced" Required="false" Mask="false"/>
 </Container>

@@ -17,7 +17,7 @@ fi
 
 export CADDY_BACKEND=mock
 export FLASK_DEBUG=1
-export FLASK_PORT="${FLASK_PORT:-9999}"
+export FLASK_PORT="${FLASK_PORT:-9998}"
 
 echo
 echo "[start] caddy-admin UI (mock mode, hot-reload on)"

@@ -91,11 +91,13 @@ no Caddy, no Cloudflare credentials, no real domain.
 
 ```bash
 ./start_debug_server.sh
-# → http://localhost:9999
+# → http://localhost:9998
 ```
 
 The script creates a venv on first run, installs requirements, and starts
-Flask with `CADDY_BACKEND=mock` and `FLASK_DEBUG=1`. Hot-reload is on:
+Flask with `CADDY_BACKEND=mock` and `FLASK_DEBUG=1`. Defaults to port 9998
+so it doesn't collide with the real container on 9999; override with
+`FLASK_PORT=…`. Hot-reload is on:
 
 | Change | Reload |
 |---|---|

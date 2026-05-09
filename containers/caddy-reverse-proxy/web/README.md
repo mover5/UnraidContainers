@@ -34,13 +34,14 @@ Selected at startup via `CADDY_BACKEND=real|mock`.
 
 ```bash
 ./start_debug_server.sh
-# → http://localhost:9999
+# → http://localhost:9998
 ```
 
 The script (in the container directory, one level up from `web/`) creates a
 venv on first run, installs requirements, and starts Flask with
-`CADDY_BACKEND=mock FLASK_DEBUG=1`. Re-runs are instant — it only reinstalls
-when `requirements.txt` changes.
+`CADDY_BACKEND=mock FLASK_DEBUG=1`. Defaults to port 9998 so it doesn't
+clash with the real container on 9999; override with `FLASK_PORT=…`.
+Re-runs are instant — it only reinstalls when `requirements.txt` changes.
 
 Hot-reload is on:
 - `.py` change → server restarts (refresh browser)

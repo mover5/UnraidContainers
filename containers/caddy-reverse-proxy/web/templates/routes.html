@@ -48,7 +48,12 @@
           </button>
         </form>
       </td>
-      <td><code>{{ r.subdomain }}</code></td>
+      <td>
+        <a href="https://{{ r.subdomain }}" target="_blank" rel="noopener noreferrer"
+           class="subdomain-link" title="Open https://{{ r.subdomain }} in a new tab">
+          <code>{{ r.subdomain }}</code><span class="ext-arrow" aria-hidden="true">↗</span>
+        </a>
+      </td>
       <td><code>{{ r.upstream }}</code></td>
       <td class="muted">{{ r.description }}</td>
       <td class="col-actions">

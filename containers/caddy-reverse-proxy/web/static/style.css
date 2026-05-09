@@ -176,6 +176,26 @@ code {
 .col-actions { width: 1%; white-space: nowrap; text-align: right; }
 .col-actions .btn { margin-left: 4px; }
 
+.subdomain-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+.subdomain-link:hover { text-decoration: none; }
+.subdomain-link:hover code {
+  background: var(--accent);
+  color: #06241e;
+}
+.ext-arrow {
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.6;
+  transition: opacity 0.1s ease, color 0.1s ease;
+}
+.subdomain-link:hover .ext-arrow { opacity: 1; color: var(--accent); }
+.row-disabled .subdomain-link { pointer-events: none; }
+
 /* pills */
 .pill {
   display: inline-block;

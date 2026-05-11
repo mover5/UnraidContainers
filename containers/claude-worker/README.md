@@ -89,6 +89,22 @@ tmux a
 
 Everything keeps running when you disconnect. `tmux a` to come back.
 
+### Session Persistence Across Container Restarts
+
+tmux sessions are saved to disk so they survive container restarts (e.g. the weekly Unraid AppData backup).
+
+- **Autosave** runs every 15 minutes (via tmux-continuum).
+- **Save on stop** — when Unraid stops the container, the entrypoint catches the signal and forces a final snapshot before exiting.
+- **Auto-restore** — the first time you `tmux attach` after a restart, your windows, panes, working directories, and pane scrollback are restored.
+- **Claude sessions** auto-relaunch with `claude --continue --dangerously-skip-permissions`, resuming the most recent conversation in that pane's working directory.
+- **Other restorable programs:** `vim`, `nvim`, `nano`, `ssh`. Anything else (dev servers, `tail -f`, etc.) needs to be re-launched manually — tmux can only restore the layout, not arbitrary stateful processes.
+
+Save files live at `/home/claude/.tmux/resurrect/` on the persistent home volume.
+
+Manual controls if you need them:
+- `Ctrl+B, Ctrl+s` — force a save now
+- `Ctrl+B, Ctrl+r` — manually restore the last snapshot
+
 ## GitHub Setup
 
 Run once after first start:

@@ -153,5 +153,25 @@ echo "  SSH:  ssh claude@<host> -p 2222"
 echo "  Repos: /repos"
 echo "──────────────────────────────────────────"
 
+# ── Graceful shutdown: save tmux state before exit ───────────────────
+# Triggered when Unraid stops the container (e.g. AppData backup, manual
+# stop). Forces tmux-resurrect to snapshot sessions so they can be
+# restored on next attach. tmux-continuum also autosaves every 15 min,
+# so this just guarantees the most recent state is captured.
+shutdown_handler() {
+    echo "Received stop signal — saving tmux state..."
+    if su - claude -c "tmux ls" >/dev/null 2>&1; then
+        su - claude -c "tmux run-shell /opt/tmux-plugins/tmux-resurrect/scripts/save.sh" || \
+            echo "Warning: tmux save script returned non-zero."
+        echo "Tmux state saved to /home/claude/.tmux/resurrect/"
+    else
+        echo "No tmux server running — nothing to save."
+    fi
+    exit 0
+}
+trap shutdown_handler SIGTERM SIGINT
+
 # ── Idle (PID 1) — user connects via SSH ──────────────────────────────
-exec tail -f /dev/null
+# Background tail + wait (instead of exec) so the trap above can fire.
+tail -f /dev/null &
+wait $!

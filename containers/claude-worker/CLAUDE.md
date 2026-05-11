@@ -33,7 +33,19 @@ Dev environment container with Claude Code, Node.js 22, .NET 9, Python 3, GitHub
 ## Config Files
 
 - `config/sshd_config` — SSH server config (port 2222, no root login, no X11, sftp enabled)
-- `config/tmux.conf` — 256-color, mouse support, 50k scrollback, base index 1, `|`/`-` for splits
+- `config/tmux.conf` — 256-color, mouse support, 50k scrollback, base index 1, `|`/`-` for splits, tmux-resurrect + tmux-continuum for session persistence
+
+## Tmux Session Persistence
+
+Sessions survive container restarts via **tmux-resurrect** + **tmux-continuum** (cloned into `/opt/tmux-plugins/` at image build time, sourced from `/etc/tmux.conf`).
+
+- **Save dir:** `/home/claude/.tmux/resurrect/` (on the persistent home volume)
+- **Autosave:** every 15 minutes via continuum
+- **Save-on-stop:** the entrypoint traps SIGTERM/SIGINT and runs `tmux-resurrect/scripts/save.sh` synchronously before exiting. This is why the entrypoint uses `tail -f /dev/null & wait` instead of `exec tail` — a trap can't fire on a process that has been replaced via `exec`.
+- **Auto-restore:** `@continuum-restore 'on'` triggers restore on the first `tmux attach` after restart.
+- **Process restoration:** `@resurrect-processes` includes vim/nvim/nano/ssh and a custom mapping `~claude->claude --continue --dangerously-skip-permissions` so panes that were running Claude Code relaunch with the previous conversation in that directory and no permission prompts.
+
+Stateful processes (dev servers, REPLs, `tail -f`, etc.) are **not** restored — only layout, cwd, scrollback, and the explicitly-listed programs.
 
 ## Environment Variables
 

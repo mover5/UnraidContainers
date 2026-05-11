@@ -79,6 +79,12 @@ RUN userdel -r ubuntu 2>/dev/null; groupdel ubuntu 2>/dev/null; \
 RUN mkdir -p /run/sshd
 COPY config/sshd_config /etc/ssh/sshd_config
 
+# ── tmux session persistence plugins ─────────────────────────────────
+# tmux-resurrect: save/restore pane layout + cwd + program list
+# tmux-continuum: periodic autosave + auto-restore on tmux server start
+RUN git clone --depth=1 https://github.com/tmux-plugins/tmux-resurrect /opt/tmux-plugins/tmux-resurrect \
+    && git clone --depth=1 https://github.com/tmux-plugins/tmux-continuum /opt/tmux-plugins/tmux-continuum
+
 # ── Default tmux config ──────────────────────────────────────────────
 COPY config/tmux.conf /etc/tmux.conf
 

@@ -1,0 +1,15 @@
+{
+  "name": "flight-tracker-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API server for Flight Tracker — serves the built frontend and a REST API backed by Postgres.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
+  }
+}

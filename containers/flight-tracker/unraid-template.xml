@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>flight-tracker</Name>
+  <Repository>ghcr.io/mover5/flight-tracker:latest</Repository>
+  <Registry>https://ghcr.io/mover5/flight-tracker</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Log flights, tag in-flight event times (gate push, takeoff, land, gate arrive) with one tap,
+    keep timestamped notes, and visualize taxi times, delays, and air time. Works offline and
+    syncs to your own Postgres.
+  </Overview>
+  <Category>Tools: Other:</Category>
+  <Description>
+    A mobile-first flight log with a web dashboard. Tap to stamp gate push / takeoff / land /
+    gate arrive (works offline and syncs when back online), log notes over time, and visualize
+    derived metrics like taxi-out, taxi-in, air time, block time, and departure/arrival delays.
+    Stores data in an external Postgres database via DATABASE_URL. On first run it seeds an
+    initial set of flights if the database is empty.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/flight-tracker/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="8080" Default="8080" Mode="tcp" Description="Port for the Flight Tracker web app" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+
+  <!-- Environment Variables -->
+  <Config Name="Database URL" Target="DATABASE_URL" Default="postgres://user:password@host:5432/flighttracker" Mode="" Description="Postgres connection string (postgres://user:pass@host:port/dbname)" Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Database SSL" Target="DATABASE_SSL" Default="false" Mode="" Description="Set to true if your Postgres requires SSL" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="Seed on empty" Target="SEED_ON_EMPTY" Default="true" Mode="" Description="Seed initial flights on first run if the database is empty" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+</Container>

@@ -1,0 +1,32 @@
+# Local full-stack test: builds the image and runs it against a throwaway
+# Postgres. On Unraid you don't need the `db` service — point DATABASE_URL at
+# your existing Postgres instead.
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://flighttracker:flighttracker@db:5432/flighttracker
+      SEED_ON_EMPTY: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: flighttracker
+      POSTGRES_PASSWORD: flighttracker
+      POSTGRES_DB: flighttracker
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flighttracker"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:

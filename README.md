@@ -11,6 +11,7 @@ Docker containers for Unraid, published to GitHub Container Registry (ghcr.io).
 | [database-backup](containers/database-backup/) | Scheduled database backups (MySQL, Azure SQL) with web dashboard | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-database-backup.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-database-backup.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/database-backup/latest_tag?ignore=latest,sha-*&trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/database-backup) |
 | [azurite-azure-storage](containers/azurite-azure-storage/) | Local Azure Storage emulator (Azurite) with web-based Storage Explorer | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-azurite-azure-storage.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-azurite-azure-storage.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/azurite-azure-storage/latest_tag?ignore=latest,sha-*&trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/azurite-azure-storage) |
 | [caddy-reverse-proxy](containers/caddy-reverse-proxy/) | Caddy reverse proxy with automatic HTTPS via Cloudflare DNS-01 challenge | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-caddy-reverse-proxy.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-caddy-reverse-proxy.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/caddy-reverse-proxy/latest_tag?ignore=latest,sha-*&trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/caddy-reverse-proxy) |
+| [flight-tracker](containers/flight-tracker/) | Mobile-first flight log with tap-to-stamp event times, notes, and a metrics dashboard (backed by Postgres) | [![Build](https://github.com/mover5/UnraidContainers/actions/workflows/build-flight-tracker.yml/badge.svg)](https://github.com/mover5/UnraidContainers/actions/workflows/build-flight-tracker.yml) | [![Version](https://ghcr-badge.egpl.dev/mover5/flight-tracker/latest_tag?ignore=latest,sha-*&trim=major&label=version)](https://github.com/mover5/UnraidContainers/pkgs/container/flight-tracker) |
 
 ## Running a container
 
@@ -61,6 +62,7 @@ containers/
   build-database-backup.yml # Triggers on changes to database-backup/
   build-azurite-azure-storage.yml # Triggers on changes to azurite-azure-storage/
   build-caddy-reverse-proxy.yml   # Triggers on changes to caddy-reverse-proxy/
+  build-flight-tracker.yml  # Triggers on changes to flight-tracker/
   build-all.yml             # Manual trigger to rebuild all containers
   sync-templates.yml        # Auto-syncs unraid-template.xml files to templates/
 templates/                  # Flat directory of Unraid templates (auto-generated)

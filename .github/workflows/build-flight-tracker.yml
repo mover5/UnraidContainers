@@ -1,0 +1,22 @@
+# Place this at .github/workflows/build-flight-tracker.yml in the
+# UnraidContainers repo. It mirrors the other per-container workflows and is
+# created automatically if you instead run `./add-container.sh flight-tracker`.
+name: Build flight-tracker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/flight-tracker/**"
+  pull_request:
+    paths:
+      - "containers/flight-tracker/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: flight-tracker
+    permissions:
+      contents: read
+      packages: write

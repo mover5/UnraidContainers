@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0b1220;
+  color: #e6edf7;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .card {
+    @apply bg-panel border border-edge rounded-2xl;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium
+      transition active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-sky text-ink hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply btn bg-panel2 text-slate-200 border border-edge hover:border-sky;
+  }
+  .input {
+    @apply w-full bg-ink border border-edge rounded-xl px-3 py-2 text-slate-100
+      placeholder:text-slate-500 focus:outline-none focus:border-sky;
+  }
+  .label {
+    @apply block text-xs font-medium text-muted mb-1;
+  }
+  .chip {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+/* Hide number input spinners for the time editor */
+input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}

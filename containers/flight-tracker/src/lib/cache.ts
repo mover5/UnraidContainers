@@ -28,6 +28,18 @@ function read<T>(key: string, fallback: T): T {
   }
 }
 
+/** Split a free-text passenger value ("Janelle + Mark") into individual names. */
+export function splitPeople(v: string): string[] {
+  return v.split(/\s*[+,&/]\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
+// Older caches/records stored passengers as a single string. Coerce to string[]
+// on read so the rest of the app can treat it uniformly.
+function normalizeFlight(f: Flight): Flight {
+  if (Array.isArray(f.passengers)) return f;
+  return { ...f, passengers: splitPeople((f as unknown as { passengers?: string }).passengers ?? '') };
+}
+
 let seeded = false;
 function ensureSeed() {
   if (seeded) return;
@@ -41,7 +53,7 @@ function ensureSeed() {
 
 export function getFlights(): Flight[] {
   ensureSeed();
-  return read<Flight[]>(FLIGHTS_KEY, []);
+  return read<Flight[]>(FLIGHTS_KEY, []).map(normalizeFlight);
 }
 export function setFlights(flights: Flight[]) {
   localStorage.setItem(FLIGHTS_KEY, JSON.stringify(flights));

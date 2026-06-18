@@ -22,7 +22,7 @@ export default function Flights() {
       .filter((f) => (carrier ? f.carrier === carrier : true))
       .filter((f) =>
         needle
-          ? [f.origin, f.destination, f.carrier, f.flight_number, f.passengers, f.notes ?? '']
+          ? [f.origin, f.destination, f.carrier, f.flight_number, f.passengers.join(' '), f.notes ?? '']
               .join(' ')
               .toLowerCase()
               .includes(needle)
@@ -85,7 +85,8 @@ function FlightRow({ f }: { f: Flight }) {
           <CarrierBadge carrier={f.carrier} />
         </div>
         <div className="mt-0.5 truncate text-xs text-muted">
-          {f.carrier} {f.flight_number} · {f.passengers}
+          {f.carrier} {f.flight_number}
+          {f.passengers.length ? ` · ${f.passengers.join(', ')}` : ''}
           {f.notes ? ` · ${f.notes}` : ''}
         </div>
       </div>

@@ -4,7 +4,7 @@ export type ClockTime = string | null;
 export interface Flight {
   id: string;
   date: string; // yyyy-mm-dd
-  passengers: string;
+  passengers: string[]; // people on this flight, by name
   carrier: string;
   flight_number: string;
   origin: string;

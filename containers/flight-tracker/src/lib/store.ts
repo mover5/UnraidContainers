@@ -8,7 +8,21 @@ import type { Flight, FlightNote, NewFlight } from './types';
 export { isRemote } from './api';
 export { subscribe } from './cache';
 
-const uuid = () => crypto.randomUUID();
+// crypto.randomUUID() is only exposed in secure contexts (HTTPS or
+// http://localhost). When the app is served over plain HTTP to a LAN/Tailscale
+// IP it's undefined, so fall back to a v4 UUID built from getRandomValues
+// (available in insecure contexts), then Math.random as a last resort.
+function uuid(): string {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  const bytes = new Uint8Array(16);
+  if (c?.getRandomValues) c.getRandomValues(bytes);
+  else for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+  const h = [...bytes].map((b) => b.toString(16).padStart(2, '0'));
+  return `${h[0]}${h[1]}${h[2]}${h[3]}-${h[4]}${h[5]}-${h[6]}${h[7]}-${h[8]}${h[9]}-${h[10]}${h[11]}${h[12]}${h[13]}${h[14]}${h[15]}`;
+}
 
 export const store = {
   async listFlights(): Promise<Flight[]> {

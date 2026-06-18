@@ -5,7 +5,14 @@ import pg from 'pg';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const { Pool } = pg;
+const { Pool, types } = pg;
+
+// Postgres DATE (type OID 1082): return the raw 'YYYY-MM-DD' string instead of
+// letting node-postgres build a JS Date. A Date object serializes to a full
+// timestamp (e.g. "2026-06-16T07:00:00.000Z") shifted by the server timezone,
+// which the frontend's fmtDate() — expecting a plain calendar date — renders as
+// "Invalid Date". Keeping it a string matches the local-first seed data exactly.
+types.setTypeParser(1082, (v) => v);
 
 const useSsl = process.env.DATABASE_SSL === 'true';
 export const pool = new Pool({
@@ -26,7 +33,7 @@ const SCHEMA = `
 create table if not exists flights (
   id                    uuid primary key,
   date                  date not null,
-  passengers            text not null default '',
+  passengers            text[] not null default '{}',
   carrier               text not null default '',
   flight_number         text not null default '',
   origin                text not null,
@@ -57,6 +64,33 @@ create index if not exists flights_date_idx on flights (date);
 create index if not exists flight_notes_flight_idx on flight_notes (flight_id);
 `;
 
+// Idempotent migration: an older deploy stored passengers as a single text
+// value (e.g. "Janelle + Mark"). Convert that column to text[] in place,
+// splitting on + , & / into individual names. Guarded on the current type so
+// it's a no-op on fresh databases (already text[]) and on re-runs.
+const MIGRATE = `
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'flights' and column_name = 'passengers' and data_type <> 'ARRAY'
+  ) then
+    alter table flights alter column passengers drop default;
+    alter table flights alter column passengers type text[] using (
+      case
+        when passengers is null or btrim(passengers) = '' then '{}'::text[]
+        else coalesce(
+          array_remove(regexp_split_to_array(btrim(passengers), '\\s*[+,&/]\\s*'), ''),
+          '{}'::text[]
+        )
+      end
+    );
+    alter table flights alter column passengers set default '{}';
+    alter table flights alter column passengers set not null;
+  end if;
+end $$;
+`;
+
 // Build an "INSERT ... ON CONFLICT (id) DO UPDATE" statement for a column set.
 function upsertSql(table, columns) {
   const cols = columns.join(', ');
@@ -75,6 +109,7 @@ const pick = (obj, cols) => cols.map((c) => (obj[c] === undefined ? null : obj[c
 
 export async function init() {
   await pool.query(SCHEMA);
+  await pool.query(MIGRATE);
   await maybeSeed();
 }
 

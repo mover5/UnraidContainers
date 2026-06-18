@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useFlights } from '../hooks/useFlights';
 import { store } from '../lib/store';
@@ -14,9 +14,11 @@ import {
   taxiOut,
 } from '../lib/time';
 import { CarrierBadge, Spinner, fmtDate } from '../components/ui';
-import { IconBack, IconTrash } from '../components/icons';
+import { IconBack, IconCheck, IconTrash } from '../components/icons';
 import LiveLogger from '../components/LiveLogger';
 import NotesThread from '../components/NotesThread';
+import PassengerEditor from '../components/PassengerEditor';
+import { allPeople } from '../lib/analytics';
 
 export default function FlightDetail() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +26,12 @@ export default function FlightDetail() {
   const { flights, reload } = useFlights();
   const [flight, setFlight] = useState<Flight | null>(null);
   const [loading, setLoading] = useState(true);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -50,6 +58,10 @@ export default function FlightDetail() {
     setFlight({ ...flight, ...p }); // optimistic
     await store.updateFlight(flight.id, p);
     reload();
+    // Visible confirmation that the autosave landed.
+    setSavedFlash(true);
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSavedFlash(false), 1600);
   }
 
   async function del() {
@@ -86,9 +98,26 @@ export default function FlightDetail() {
           <span>{flight.carrier} {flight.flight_number}</span>
           <span>·</span>
           <span>{fmtDate(flight.date)}</span>
-          <span>·</span>
-          <span>{flight.passengers}</span>
+          {flight.passengers.length > 0 && (
+            <>
+              <span>·</span>
+              <span>{flight.passengers.join(', ')}</span>
+            </>
+          )}
         </div>
+      </div>
+
+      {/* People */}
+      <div className="card space-y-2 p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">People</h2>
+          <SavedFlash show={savedFlash} />
+        </div>
+        <PassengerEditor
+          value={flight.passengers}
+          onChange={(v) => patch({ passengers: v })}
+          suggestions={allPeople(flights)}
+        />
       </div>
 
       <LiveLogger flight={flight} onPatch={patch} />
@@ -113,7 +142,11 @@ export default function FlightDetail() {
 
       {/* Schedule & flags */}
       <div className="card space-y-4 p-4">
-        <h2 className="font-semibold">Schedule &amp; details</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Schedule &amp; details</h2>
+          <SavedFlash show={savedFlash} />
+        </div>
+        <p className="-mt-2 text-xs text-muted">Changes save automatically.</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <TimeField label="Sched. departure" value={flight.scheduled_departure} onChange={(v) => patch({ scheduled_departure: v })} />
           <TimeField label="Delayed departure" value={flight.delayed_departure} onChange={(v) => patch({ delayed_departure: v })} />
@@ -142,6 +175,19 @@ export default function FlightDetail() {
 
       <NotesThread flightId={flight.id} legacyNote={flight.notes} />
     </div>
+  );
+}
+
+function SavedFlash({ show }: { show: boolean }) {
+  return (
+    <span
+      aria-live="polite"
+      className={`inline-flex items-center gap-1 text-[11px] font-medium text-good transition-opacity duration-300 ${
+        show ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <IconCheck className="h-3.5 w-3.5" /> Saved
+    </span>
   );
 }
 

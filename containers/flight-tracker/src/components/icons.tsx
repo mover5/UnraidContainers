@@ -70,3 +70,9 @@ export const IconBack = (p: P) => (
     <path d="M19 12H5M11 18l-6-6 6-6" />
   </svg>
 );
+
+export const IconCheck = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);

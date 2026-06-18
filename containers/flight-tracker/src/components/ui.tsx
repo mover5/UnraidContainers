@@ -65,7 +65,9 @@ export function EmptyState({ title, hint }: { title: string; hint?: string }) {
 }
 
 export function fmtDate(iso: string, opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }) {
-  // Treat the date as local calendar date (no tz shift).
-  const [y, m, d] = iso.split('-').map(Number);
+  // Treat the date as a local calendar date (no tz shift). Tolerate a full ISO
+  // timestamp ("2026-06-16T07:00:00.000Z") by taking just the date portion.
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  if (!y || !m || !d) return 'Invalid Date';
   return new Date(y, m - 1, d).toLocaleDateString(undefined, opts);
 }

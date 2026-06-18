@@ -2,13 +2,15 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFlights } from '../hooks/useFlights';
 import { store } from '../lib/store';
+import { allPeople } from '../lib/analytics';
 import type { NewFlight } from '../lib/types';
+import PassengerEditor from '../components/PassengerEditor';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 const blank: NewFlight = {
   date: todayIso(),
-  passengers: 'Janelle + Mark',
+  passengers: ['Janelle', 'Mark'],
   carrier: 'Alaska',
   flight_number: '',
   origin: '',
@@ -36,6 +38,7 @@ export default function AddFlight() {
   const [error, setError] = useState<string | null>(null);
 
   const carriers = Array.from(new Set([...flights.map((f) => f.carrier), 'Alaska', 'United', 'American', 'Delta'])).sort();
+  const people = Array.from(new Set([...allPeople(flights), 'Janelle', 'Mark'])).sort();
 
   const set = <K extends keyof NewFlight>(k: K, v: NewFlight[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -76,10 +79,11 @@ export default function AddFlight() {
             <label className="label">Date</label>
             <input type="date" className="input" value={form.date} onChange={(e) => set('date', e.target.value)} />
           </div>
-          <div>
-            <label className="label">Passengers</label>
-            <input className="input" value={form.passengers} onChange={(e) => set('passengers', e.target.value)} />
-          </div>
+        </div>
+
+        <div>
+          <label className="label">People</label>
+          <PassengerEditor value={form.passengers} onChange={(v) => set('passengers', v)} suggestions={people} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

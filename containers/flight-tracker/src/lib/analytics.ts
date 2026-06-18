@@ -12,6 +12,11 @@ import {
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const nums = (xs: (number | null)[]) => xs.filter((x): x is number => x !== null);
 
+/** Sorted, de-duplicated list of every person who appears on any flight. */
+export function allPeople(flights: Flight[]): string[] {
+  return [...new Set(flights.flatMap((f) => f.passengers))].sort((a, b) => a.localeCompare(b));
+}
+
 export interface Summary {
   total: number;
   completed: number;

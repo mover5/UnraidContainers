@@ -2,7 +2,9 @@
   {
     "id": "08a504d6-0720-4ecc-b12a-59fb907451e8",
     "date": "2023-09-16",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1190",
     "origin": "SEA",
@@ -24,7 +26,9 @@
   {
     "id": "b19f3d1a-8137-43c8-9fd6-45c62e59baeb",
     "date": "2023-09-19",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1149",
     "origin": "SNA",
@@ -46,7 +50,9 @@
   {
     "id": "b2df90b0-669c-4c3d-9b31-1077d51d6090",
     "date": "2023-11-20",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "738",
     "origin": "SEA",
@@ -68,7 +74,9 @@
   {
     "id": "acbcbea3-f52d-43b9-aec7-2b0bd123cfdc",
     "date": "2023-11-22",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "609",
     "origin": "LAS",
@@ -90,7 +98,9 @@
   {
     "id": "d0007787-8e1e-4269-9e6b-4afea25854ca",
     "date": "2023-12-17",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "583",
     "origin": "SEA",
@@ -112,7 +122,9 @@
   {
     "id": "52047d94-b621-4b0b-8fd0-9d7b123aee4f",
     "date": "2023-12-17",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3571",
     "origin": "DFW",
@@ -134,7 +146,9 @@
   {
     "id": "759ec54c-8d86-4c99-9fc9-1fca8f1026a6",
     "date": "2023-12-28",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "6154",
     "origin": "BMI",
@@ -156,7 +170,9 @@
   {
     "id": "88f15f91-e151-4b3b-9968-025fd9610bef",
     "date": "2023-12-28",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "2398",
     "origin": "ORD",
@@ -178,7 +194,9 @@
   {
     "id": "7a5eeac5-9548-4b7e-878c-3b0fc5de9a7d",
     "date": "2024-03-14",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "2398",
     "origin": "SEA",
@@ -200,7 +218,9 @@
   {
     "id": "92f249a1-91a7-4f8d-b5eb-5911a64c82bc",
     "date": "2024-03-14",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "6174",
     "origin": "ORD",
@@ -222,7 +242,9 @@
   {
     "id": "d6a3ed67-fe35-45ac-8c4c-7f27513e4198",
     "date": "2024-03-25",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3620",
     "origin": "BMI",
@@ -244,7 +266,9 @@
   {
     "id": "507c3428-5136-4e2c-99e6-5fdc92f5625c",
     "date": "2024-03-25",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "2003",
     "origin": "DFW",
@@ -266,7 +290,9 @@
   {
     "id": "58517916-ced5-4b3d-9e42-56745e6ed3bd",
     "date": "2024-06-06",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1132",
     "origin": "SEA",
@@ -288,7 +314,9 @@
   {
     "id": "2ff1fed8-cc23-45be-8f2e-d4f70037801f",
     "date": "2024-06-10",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1059",
     "origin": "SFO",
@@ -310,7 +338,9 @@
   {
     "id": "317b2fc3-a96b-4042-8763-9dcbc1693603",
     "date": "2024-10-14",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "576",
     "origin": "SEA",
@@ -332,7 +362,9 @@
   {
     "id": "ea34b857-738f-487e-aec0-bc9983c8cc33",
     "date": "2024-10-14",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "970",
     "origin": "ORD",
@@ -354,7 +386,9 @@
   {
     "id": "2f115d0a-0130-4b11-b48a-cfe2573c8287",
     "date": "2024-10-23",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "971",
     "origin": "FCO",
@@ -376,7 +410,9 @@
   {
     "id": "755236b0-8316-4e7a-b68d-e29d40c2e809",
     "date": "2024-10-23",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "2278",
     "origin": "ORD",
@@ -398,7 +434,9 @@
   {
     "id": "40f831ac-a7c9-461e-963d-20c83ac46eaf",
     "date": "2024-12-18",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "1534",
     "origin": "SEA",
@@ -420,7 +458,9 @@
   {
     "id": "c6db9e89-95b0-4099-8777-e49f6765ba65",
     "date": "2024-12-18",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3571",
     "origin": "DFW",
@@ -442,7 +482,9 @@
   {
     "id": "d76abfbc-0da9-4666-b46e-f29c851ccd0c",
     "date": "2024-12-28",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3532",
     "origin": "BMI",
@@ -464,7 +506,9 @@
   {
     "id": "072aa6ea-e2dc-44fc-a52b-80b5c64a281c",
     "date": "2024-12-28",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3174",
     "origin": "DFW",
@@ -486,7 +530,9 @@
   {
     "id": "7a4add54-dfec-48e8-a3da-96e08b1b0111",
     "date": "2024-04-23",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Air Tahiti",
     "flight_number": "51",
     "origin": "SEA",
@@ -508,7 +554,9 @@
   {
     "id": "0db30b29-8238-494b-ac17-a3ab6deabd36",
     "date": "2025-05-04",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Air Tahiti",
     "flight_number": "52",
     "origin": "PPT",
@@ -530,7 +578,9 @@
   {
     "id": "70bf06d5-d8cd-4390-abef-afb888160b43",
     "date": "2025-06-27",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "801",
     "origin": "SEA",
@@ -552,7 +602,9 @@
   {
     "id": "b9534160-4ff7-4b89-9282-7648eb28a7df",
     "date": "2025-07-05",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "880",
     "origin": "KOA",
@@ -574,7 +626,9 @@
   {
     "id": "bf57ba04-bcd3-452f-aa5e-59926639b59b",
     "date": "2025-07-16",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "Delta",
     "flight_number": "2905",
     "origin": "SEA",
@@ -596,7 +650,9 @@
   {
     "id": "ebd279ca-8618-46d7-8b49-fb5ce67d362b",
     "date": "2025-07-25",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3555",
     "origin": "BMI",
@@ -618,7 +674,9 @@
   {
     "id": "9bbfd112-c5eb-474c-8ae7-fff24342f9d0",
     "date": "2025-07-25",
-    "passengers": "Mark",
+    "passengers": [
+      "Mark"
+    ],
     "carrier": "American",
     "flight_number": "3105",
     "origin": "ORD",
@@ -640,7 +698,9 @@
   {
     "id": "0bde1c4b-2882-4a81-a9ef-8f13f981d9f1",
     "date": "2025-07-26",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "3456",
     "origin": "SEA",
@@ -662,7 +722,9 @@
   {
     "id": "160f6056-6514-4958-a367-16c77546e339",
     "date": "2025-07-27",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "2086",
     "origin": "OAK",
@@ -684,7 +746,9 @@
   {
     "id": "99341c02-e782-4b0f-b188-25e4ec6042ff",
     "date": "2025-08-01",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "658",
     "origin": "SEA",
@@ -706,7 +770,9 @@
   {
     "id": "1e0cb191-a43e-4773-bb26-4a433126717f",
     "date": "2025-08-06",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "676",
     "origin": "LAS",
@@ -728,7 +794,9 @@
   {
     "id": "702ea2ac-c1fb-43f7-be72-1c98c8e7b605",
     "date": "2025-10-03",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "1007",
     "origin": "SEA",
@@ -750,7 +818,9 @@
   {
     "id": "23e0fc13-5e34-4df8-b338-f2ecaf76d53c",
     "date": "2025-10-05",
-    "passengers": "Janelle",
+    "passengers": [
+      "Janelle"
+    ],
     "carrier": "Alaska",
     "flight_number": "1006",
     "origin": "PHX",
@@ -772,7 +842,10 @@
   {
     "id": "757cde8c-fbff-428e-8856-05cb2f5d55a0",
     "date": "2025-10-09",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "730",
     "origin": "SEA",
@@ -794,7 +867,10 @@
   {
     "id": "13382993-03a6-41c0-97b9-11737b224a06",
     "date": "2025-10-12",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "135",
     "origin": "LAS",
@@ -816,7 +892,10 @@
   {
     "id": "b37d531e-c0a9-42de-af8b-a6143314ea0c",
     "date": "2025-12-22",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "439",
     "origin": "SEA",
@@ -838,7 +917,10 @@
   {
     "id": "defe21d3-3d6d-4091-bf34-fd0f2b7d617c",
     "date": "2025-12-27",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "337",
     "origin": "ORD",
@@ -860,7 +942,10 @@
   {
     "id": "2efffd19-5c5c-4022-873c-9e52be8aeacb",
     "date": "2026-03-29",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1400",
     "origin": "SEA",
@@ -882,7 +967,10 @@
   {
     "id": "30c0166a-3d2d-419e-be7b-445d50f6efa3",
     "date": "2026-04-04",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "1403",
     "origin": "CUN",
@@ -904,7 +992,10 @@
   {
     "id": "96d69c43-1344-4d37-b5ba-b95dc06013c2",
     "date": "2026-05-14",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "2618",
     "origin": "SEA",
@@ -926,7 +1017,10 @@
   {
     "id": "8633c3eb-892f-47dd-949d-047fc0fe7c75",
     "date": "2026-05-14",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "5874",
     "origin": "ORD",
@@ -948,7 +1042,10 @@
   {
     "id": "bd183c76-39da-4142-b658-98d715cabc86",
     "date": "2026-05-17",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "5674",
     "origin": "PIA",
@@ -970,7 +1067,10 @@
   {
     "id": "89ef75ed-33f2-472b-a672-9ed196da7a74",
     "date": "2026-05-17",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "United",
     "flight_number": "1660",
     "origin": "ORD",
@@ -992,7 +1092,10 @@
   {
     "id": "a2f1aff6-b9b5-413c-a618-ca11a31e230a",
     "date": "2026-06-13",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "426",
     "origin": "SEA",
@@ -1014,7 +1117,10 @@
   {
     "id": "8e3f29a1-50f3-4a06-b0dd-82adabc12693",
     "date": "2026-06-16",
-    "passengers": "Janelle + Mark",
+    "passengers": [
+      "Janelle",
+      "Mark"
+    ],
     "carrier": "Alaska",
     "flight_number": "580",
     "origin": "BUR",

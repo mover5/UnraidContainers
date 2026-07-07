@@ -75,6 +75,32 @@ export const departureDelay = (f: Flight) => signedDiff(f.scheduled_departure, a
 /** Arrival delay vs schedule (positive = late to the gate). */
 export const arrivalDelay = (f: Flight) => signedDiff(f.scheduled_arrival, f.gate_arrive);
 
+/**
+ * Parse a free-text duration estimate ("2h8m", "40m", "3h", "1h28m", and the
+ * odd un-suffixed "4h11") into minutes, or null for blanks / "n/a" / garbage.
+ */
+export function parseDuration(s: string | null | undefined): number | null {
+  if (!s) return null;
+  const t = s.toLowerCase().replace(/\s+/g, '');
+  const m = /^(?:(\d+)h)?(\d+)?m?$/.exec(t);
+  if (!m || (m[1] === undefined && m[2] === undefined)) return null;
+  return (m[1] ? Number(m[1]) : 0) * 60 + (m[2] ? Number(m[2]) : 0);
+}
+
+/** Airline/pilot projected air time, in minutes. */
+export const projectedMinutes = (f: Flight) => parseDuration(f.projected_flying_time);
+
+/**
+ * Actual air time minus the projected estimate (positive = the flight took
+ * longer than projected). null if either the estimate or air time is missing.
+ */
+export function vsProjected(f: Flight): number | null {
+  const actual = airTime(f);
+  const proj = projectedMinutes(f);
+  if (actual === null || proj === null) return null;
+  return actual - proj;
+}
+
 /** Format minutes -> "1h42m" / "42m" / "-12m". */
 export function fmtDuration(min: number | null | undefined): string {
   if (min === null || min === undefined || Number.isNaN(min)) return '—';

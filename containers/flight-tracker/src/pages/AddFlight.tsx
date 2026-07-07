@@ -156,6 +156,17 @@ export default function AddFlight() {
           </div>
         </div>
 
+        <div>
+          <label className="label">Projected flying time</label>
+          <input
+            className="input"
+            placeholder="2h8m"
+            value={form.projected_flying_time ?? ''}
+            onChange={(e) => set('projected_flying_time', e.target.value || null)}
+          />
+          <p className="mt-1 text-xs text-muted">Airline/pilot estimate — compare vs actual air time.</p>
+        </div>
+
         {error && <div className="rounded-xl bg-bad/15 px-3 py-2 text-sm text-bad">{error}</div>}
 
         <div className="flex gap-2">

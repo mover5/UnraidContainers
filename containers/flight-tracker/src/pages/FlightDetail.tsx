@@ -12,6 +12,7 @@ import {
   fmtDuration,
   taxiIn,
   taxiOut,
+  vsProjected,
 } from '../lib/time';
 import { CarrierBadge, Spinner, fmtDate } from '../components/ui';
 import { IconBack, IconCheck, IconTrash } from '../components/icons';
@@ -136,6 +137,12 @@ export default function FlightDetail() {
         {flight.projected_flying_time && (
           <div className="mt-3 text-xs text-muted">
             Airline-projected flying time: <span className="text-slate-300">{flight.projected_flying_time}</span>
+            {vsProjected(flight) !== null && (
+              <span className={vsProjected(flight)! > 0 ? 'text-bad' : 'text-good'}>
+                {' · '}
+                {fmtDelay(vsProjected(flight))} vs actual air time
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -163,6 +170,16 @@ export default function FlightDetail() {
               onChange={(e) => patch({ tz_change: Number(e.target.value) || 0 })}
             />
             <p className="mt-1 text-xs text-muted">Destination offset − origin. West = negative (ORD→SEA = −2), east = positive.</p>
+          </div>
+          <div>
+            <label className="label">Projected flying time</label>
+            <input
+              className="input"
+              placeholder="2h8m"
+              value={flight.projected_flying_time ?? ''}
+              onChange={(e) => patch({ projected_flying_time: e.target.value || null })}
+            />
+            <p className="mt-1 text-xs text-muted">Airline/pilot estimate — compare vs actual air time.</p>
           </div>
           <Toggle label="Deicing?" value={flight.deicing} onChange={(v) => patch({ deicing: v })} />
           <Toggle

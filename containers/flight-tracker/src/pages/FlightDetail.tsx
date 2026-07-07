@@ -162,6 +162,7 @@ export default function FlightDetail() {
               value={flight.tz_change}
               onChange={(e) => patch({ tz_change: Number(e.target.value) || 0 })}
             />
+            <p className="mt-1 text-xs text-muted">Destination offset − origin. West = negative (ORD→SEA = −2), east = positive.</p>
           </div>
           <Toggle label="Deicing?" value={flight.deicing} onChange={(v) => patch({ deicing: v })} />
           <Toggle

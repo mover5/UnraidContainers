@@ -152,6 +152,7 @@ export default function AddFlight() {
               value={form.tz_change}
               onChange={(e) => set('tz_change', Number(e.target.value) || 0)}
             />
+            <p className="mt-1 text-xs text-muted">Destination offset − origin. West = negative (ORD→SEA = −2), east = positive.</p>
           </div>
         </div>
 

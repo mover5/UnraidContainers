@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>wine-tracker</Name>
+  <Repository>ghcr.io/mover5/wine-tracker:latest</Repository>
+  <Registry>https://ghcr.io/mover5/wine-tracker</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    A tiny wine cellar tracker. Log the bottles you win, see what's in stock, and mark them
+    drank with the date. Keeps a running history of everything you've had. Stores everything in
+    a local SQLite file (map the /data path to persist it) — no external database needed.
+  </Overview>
+  <Category>Tools: HomeAutomation: Other:</Category>
+  <Description>
+    A simple, mobile-first wine tracker with a web dashboard. Add wines by name and year, track
+    the date you won each bottle, and mark bottles as drunk (with a date) to move them into your
+    history. Two views: the active Cellar (what you currently have in stock) and History
+    (everything you've drunk). Includes search and a duplicate warning so you don't double-add.
+    All data lives in a single SQLite file under /data — back that path up and your cellar is
+    safe across reboots and updates.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/wine-tracker/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="8080" Default="8080" Mode="tcp" Description="Port for the Wine Tracker web app" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+
+  <!-- Persistent data -->
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/wine-tracker" Mode="rw" Description="Where the SQLite database (wine.db) is stored. Keep this on persistent storage." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/wine-tracker</Config>
+</Container>

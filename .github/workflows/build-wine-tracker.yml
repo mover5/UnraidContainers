@@ -1,0 +1,19 @@
+name: Build wine-tracker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/wine-tracker/**"
+  pull_request:
+    paths:
+      - "containers/wine-tracker/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: wine-tracker
+    permissions:
+      contents: read
+      packages: write

@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.*
+.DS_Store
+npm-debug.log*
+
+# Local SQLite database (created at runtime under ./data for local dev)
+data/
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#7b1e3b" />
+  <title>Wine Tracker</title>
+  <style>
+    :root {
+      --wine: #7b1e3b;
+      --wine-2: #a32d52;
+      --bg: #faf6f2;
+      --card: #ffffff;
+      --ink: #2a1a20;
+      --muted: #8a7680;
+      --line: #ece2e6;
+      --green: #2e7d5b;
+      --danger: #b23b3b;
+      --shadow: 0 1px 2px rgba(60, 20, 30, .06), 0 6px 20px rgba(60, 20, 30, .06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --wine: #d9738f; --wine-2: #e58aa4;
+        --bg: #171013; --card: #211519; --ink: #f2e8ec; --muted: #a08b93;
+        --line: #33222a; --green: #5fbf95; --danger: #e07a7a;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--ink);
+      -webkit-text-size-adjust: 100%;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    header {
+      position: sticky; top: 0; z-index: 5;
+      background: linear-gradient(135deg, var(--wine), var(--wine-2));
+      color: #fff; padding: 18px 16px 14px;
+      box-shadow: 0 2px 12px rgba(60,20,30,.18);
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    header .wrap { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    h1 { font-size: 20px; margin: 0; letter-spacing: .2px; font-weight: 700; }
+    h1 .glass { opacity: .9; }
+    .count { font-size: 13px; opacity: .95; white-space: nowrap; }
+    .count b { font-size: 15px; }
+
+    .tabs { display: flex; gap: 4px; margin: 12px auto 0; max-width: 720px; padding: 0 4px; }
+    .tab {
+      flex: 1; border: 0; background: transparent; color: rgba(255,255,255,.75);
+      font-size: 14px; font-weight: 600; padding: 8px; border-radius: 8px 8px 0 0; cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--bg); color: var(--wine); }
+
+    main { max-width: 720px; margin: 0 auto; padding: 14px 12px 40px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px;
+    }
+    .add h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .row { display: flex; gap: 8px; }
+    .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    input {
+      font: inherit; color: var(--ink); background: var(--bg);
+      border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%;
+    }
+    input:focus { outline: 2px solid var(--wine); outline-offset: 1px; border-color: var(--wine); }
+    .grow { flex: 1; } .yr { width: 96px; flex: 0 0 96px; }
+
+    button.btn {
+      font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px;
+      border: 1px solid transparent; padding: 11px 14px;
+    }
+    .primary { background: var(--wine); color: #fff; width: 100%; }
+    .primary:active { transform: translateY(1px); }
+
+    .search { margin: 2px 0 10px; }
+    .search input { background: var(--card); }
+
+    .item { display: flex; align-items: center; gap: 12px; }
+    .item .body { flex: 1; min-width: 0; }
+    .item .name { font-weight: 600; font-size: 16px; overflow-wrap: anywhere; }
+    .item .name .vint { color: var(--wine); font-weight: 700; }
+    .item .meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .acts { display: flex; gap: 6px; flex-shrink: 0; }
+    .chip {
+      font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+      border-radius: 999px; padding: 7px 12px; border: 1px solid var(--line);
+      background: var(--bg); color: var(--ink); white-space: nowrap;
+    }
+    .chip.go { border-color: var(--green); color: var(--green); }
+    .chip.icon { padding: 7px 10px; }
+
+    .empty { text-align: center; color: var(--muted); padding: 40px 16px; }
+    .empty .big { font-size: 40px; margin-bottom: 6px; }
+
+    /* Modal */
+    .scrim {
+      position: fixed; inset: 0; background: rgba(20,8,12,.5); display: none;
+      align-items: center; justify-content: center; padding: 16px; z-index: 20;
+    }
+    .scrim.open { display: flex; }
+    .modal { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); width: 100%; max-width: 420px; padding: 18px; }
+    .modal h3 { margin: 0 0 4px; font-size: 17px; }
+    .modal p { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; }
+    .modal .actions { display: flex; gap: 8px; margin-top: 16px; }
+    .modal .actions .btn { flex: 1; }
+    .ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+    .danger { background: var(--danger); color: #fff; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px;
+      font-size: 14px; opacity: 0; transition: all .2s; pointer-events: none; z-index: 30;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1><span class="glass">🍷</span> Wine Tracker</h1>
+      <div class="count"><b id="cellarCount">0</b> in the cellar</div>
+    </div>
+    <div class="tabs">
+      <button class="tab" id="tab-cellar" role="tab" aria-selected="true" onclick="setView('cellar')">Cellar</button>
+      <button class="tab" id="tab-drank" role="tab" aria-selected="false" onclick="setView('drank')">History</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Add form (cellar view only) -->
+    <form class="card add" id="addForm" onsubmit="return addWine(event)">
+      <h2>Add a bottle</h2>
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" placeholder="e.g. Cabernet Sauvignon, Reserve" autocomplete="off" required />
+      </div>
+      <div class="row">
+        <div class="field yr">
+          <label for="f-year">Year</label>
+          <input id="f-year" inputmode="numeric" placeholder="2019" maxlength="4" />
+        </div>
+        <div class="field grow">
+          <label for="f-won">Date won <span style="font-weight:400">(optional)</span></label>
+          <input id="f-won" type="date" />
+        </div>
+      </div>
+      <button class="btn primary" type="submit">Add to cellar</button>
+    </form>
+
+    <div class="search"><input id="search" placeholder="Search…" oninput="render()" autocomplete="off" /></div>
+
+    <div id="list"></div>
+  </main>
+
+  <!-- Modal (drink / edit) -->
+  <div class="scrim" id="scrim">
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = (window.__API__ || '/api');
+    let view = 'cellar';
+    let cache = { cellar: [], drank: [] };
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const todayISO = () => new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD
+    function fmtDate(d) {
+      if (!d) return null;
+      const [y, m, day] = d.split('-').map(Number);
+      return new Date(y, m - 1, day).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    function toast(msg) {
+      const t = $('toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    async function api(path, opts) {
+      const res = await fetch(API + path, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+      });
+      if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+      return res.status === 204 ? null : res.json();
+    }
+
+    async function load() {
+      const [cellar, drank] = await Promise.all([
+        api('/wines?status=cellar'),
+        api('/wines?status=drank'),
+      ]);
+      cache = { cellar, drank };
+      $('cellarCount').textContent = cellar.length;
+      render();
+    }
+
+    function setView(v) {
+      view = v;
+      $('tab-cellar').setAttribute('aria-selected', v === 'cellar');
+      $('tab-drank').setAttribute('aria-selected', v === 'drank');
+      $('addForm').style.display = v === 'cellar' ? '' : 'none';
+      render();
+    }
+
+    function render() {
+      const q = $('search').value.trim().toLowerCase();
+      let rows = cache[view];
+      if (q) rows = rows.filter((w) => (w.name + ' ' + (w.year || '')).toLowerCase().includes(q));
+      const list = $('list');
+
+      if (!rows.length) {
+        const msg = view === 'cellar'
+          ? (q ? 'No matches in the cellar.' : 'Your cellar is empty. Add a bottle above! 🍾')
+          : (q ? 'No matches in your history.' : 'No bottles drunk yet. Cheers to that. 🥂');
+        list.innerHTML = `<div class="empty"><div class="big">${view === 'cellar' ? '🗄️' : '🕰️'}</div>${msg}</div>`;
+        return;
+      }
+
+      list.innerHTML = rows.map((w) => {
+        const vint = w.year ? `<span class="vint">${w.year}</span> ` : '';
+        const meta = view === 'cellar'
+          ? (w.won_date ? 'Won ' + fmtDate(w.won_date) : 'Won date unknown')
+          : `Won ${w.won_date ? fmtDate(w.won_date) : '—'} · Drank ${fmtDate(w.drank_date)}`;
+        const acts = view === 'cellar'
+          ? `<button class="chip go" onclick="askDrink(${w.id})">Drank</button>
+             <button class="chip icon" title="Edit" onclick="askEdit(${w.id})">✏️</button>`
+          : `<button class="chip" title="Move back to cellar" onclick="undrink(${w.id})">↩︎ Cellar</button>
+             <button class="chip icon" title="Delete" onclick="askDelete(${w.id})">🗑️</button>`;
+        return `<div class="card item">
+          <div class="body">
+            <div class="name">${vint}${esc(w.name)}</div>
+            <div class="meta">${esc(meta)}</div>
+          </div>
+          <div class="acts">${acts}</div>
+        </div>`;
+      }).join('');
+    }
+
+    const find = (id) => cache.cellar.concat(cache.drank).find((w) => w.id === id);
+
+    async function addWine(e) {
+      e.preventDefault();
+      const name = $('f-name').value.trim();
+      const yearRaw = $('f-year').value.trim();
+      const won = $('f-won').value || null;
+      if (!name) return false;
+      const year = yearRaw ? Number(yearRaw) : null;
+
+      // Soft duplicate guard: same name + year already in the cellar.
+      const dupe = cache.cellar.find((w) =>
+        w.name.toLowerCase() === name.toLowerCase() && (w.year || null) === (year || null));
+      if (dupe && !confirm(`You already have "${name}"${year ? ' ' + year : ''} in the cellar. Add another anyway?`)) {
+        return false;
+      }
+
+      await api('/wines', { method: 'POST', body: JSON.stringify({ name, year, won_date: won }) });
+      e.target.reset();
+      $('f-name').focus();
+      await load();
+      toast('Added to the cellar 🍷');
+      return false;
+    }
+
+    // --- Modal helpers ---
+    function openModal(html) { $('modal').innerHTML = html; $('scrim').classList.add('open'); }
+    function closeModal() { $('scrim').classList.remove('open'); }
+    $('scrim').addEventListener('click', (e) => { if (e.target === $('scrim')) closeModal(); });
+
+    function askDrink(id) {
+      const w = find(id);
+      openModal(`
+        <h3>When did you drink it?</h3>
+        <p>${esc(w.name)}${w.year ? ' · ' + w.year : ''}</p>
+        <div class="field"><label>Date drunk</label><input id="m-date" type="date" value="${todayISO()}" /></div>
+        <div class="actions">
+          <button class="btn ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn primary" onclick="confirmDrink(${id})">Mark drank</button>
+        </div>`);
+    }
+    async function confirmDrink(id) {
+      const date = $('m-date').value || todayISO();
+      await api('/wines/' + id, { method: 'PATCH', body: JSON.stringify({ drank_date: date }) });
+      closeModal(); await load(); toast('Moved to history 🥂');
+    }
+
+    async function undrink(id) {
+      await api('/wines/' + id, { method: 'PATCH', body: JSON.stringify({ drank_date: null }) });
+      await load(); toast('Back in the cellar');
+    }
+
+    function askEdit(id) {
+      const w = find(id);
+      openModal(`
+        <h3>Edit bottle</h3>
+        <div class="field"><label>Name</label><input id="e-name" value="${esc(w.name)}" /></div>
+        <div class="row">
+          <div class="field yr"><label>Year</label><input id="e-year" inputmode="numeric" maxlength="4" value="${w.year || ''}" /></div>
+          <div class="field grow"><label>Date won</label><input id="e-won" type="date" value="${w.won_date || ''}" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn danger" onclick="askDelete(${id})">Delete</button>
+          <button class="btn primary" onclick="confirmEdit(${id})">Save</button>
+        </div>`);
+    }
+    async function confirmEdit(id) {
+      const name = $('e-name').value.trim();
+      if (!name) { toast('Name is required'); return; }
+      const year = $('e-year').value.trim() ? Number($('e-year').value.trim()) : null;
+      const won = $('e-won').value || null;
+      await api('/wines/' + id, { method: 'PATCH', body: JSON.stringify({ name, year, won_date: won }) });
+      closeModal(); await load(); toast('Saved');
+    }
+
+    function askDelete(id) {
+      const w = find(id);
+      openModal(`
+        <h3>Delete this bottle?</h3>
+        <p>${esc(w.name)}${w.year ? ' · ' + w.year : ''} — this removes it permanently.</p>
+        <div class="actions">
+          <button class="btn ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn danger" onclick="confirmDelete(${id})">Delete</button>
+        </div>`);
+    }
+    async function confirmDelete(id) {
+      await api('/wines/' + id, { method: 'DELETE' });
+      closeModal(); await load(); toast('Deleted');
+    }
+
+    load().catch((err) => { console.error(err); toast('Could not load — is the server up?'); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Local testing only. Builds the image and stores the SQLite DB in ./data.
+# On Unraid you install via the template instead and map /data to appdata.
+services:
+  wine-tracker:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

@@ -85,6 +85,22 @@ done
 # ---------------------------------------------------------------------------
 ACME="/opt/acme.sh/acme.sh --home /opt/acme.sh --config-home /data/acme"
 
+# strongSwan loads only ONE certificate per file from x509ca/, but the ACME CA
+# chain can contain several intermediates (e.g. Let's Encrypt's YR2 + the
+# cross-signed ISRG Root YR that links back to the widely-trusted ISRG Root X1).
+# Split the bundle into one-cert files so charon sends the complete chain —
+# without this, Windows clients fail with error 13801.
+cat > /usr/local/bin/split-chain <<'EOF'
+#!/bin/sh
+cd /etc/swanctl/x509ca || exit 0
+[ -f chain.pem ] || exit 0
+rm -f chain-*.pem
+awk '/-----BEGIN CERTIFICATE-----/{c++} c>0{print > ("chain-" c ".pem")}' chain.pem
+rm -f chain.pem
+swanctl --load-creds >/dev/null 2>&1 || true
+EOF
+chmod +x /usr/local/bin/split-chain
+
 issue_letsencrypt() {
   export CF_Token="$CF_DNS_API_TOKEN"
   log "Requesting/renewing Let's Encrypt certificate for $VPN_DOMAIN (Cloudflare DNS-01)..."
@@ -97,8 +113,9 @@ issue_letsencrypt() {
     --key-file /etc/swanctl/private/server.key \
     --cert-file /etc/swanctl/x509/server.pem \
     --ca-file /etc/swanctl/x509ca/chain.pem \
-    --reloadcmd "swanctl --load-creds >/dev/null 2>&1 || true" \
+    --reloadcmd "/usr/local/bin/split-chain" \
     || die "acme.sh --install-cert failed"
+  /usr/local/bin/split-chain
   log "Certificate installed (publicly trusted — no cert import needed on Windows)."
 }
 
@@ -128,6 +145,7 @@ issue_selfsigned() {
   fi
   cp "$pki/server.key" /etc/swanctl/private/server.key
   cp "$pki/server.crt" /etc/swanctl/x509/server.pem
+  rm -f /etc/swanctl/x509ca/chain-*.pem
   cp "$pki/ca.crt" /etc/swanctl/x509ca/chain.pem
   log "Self-signed certificate in use. Windows clients must import the CA once:"
   log "  /data/pki/ca.crt -> Local Computer > Trusted Root Certification Authorities (requires admin)."

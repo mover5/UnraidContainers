@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>tailscale-ikev2-gateway</Name>
+  <Repository>ghcr.io/mover5/tailscale-ikev2-gateway:latest</Repository>
+  <Registry>https://ghcr.io/mover5/tailscale-ikev2-gateway</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    IKEv2 VPN gateway into your Tailscale tailnet, for devices that can't run the Tailscale
+    client. Connect with the built-in Windows VPN client (no extra software), split-tunnel only
+    the Tailscale IP range (100.64.0.0/10) through it, and reach every node on your tailnet.
+    Runs strongSwan + tailscaled in one container. Forward UDP 500 and 4500 on your router to
+    this host.
+  </Overview>
+  <Category>Network:VPN Security:</Category>
+  <Description>
+    A bridge between the standard IKEv2 VPN built into Windows (and macOS/iOS/Android) and your
+    Tailscale tailnet. The container joins your tailnet as a node; VPN clients authenticate with
+    username/password (EAP-MSCHAPv2) and their tailnet-bound traffic is NATed out through the
+    tailscale interface. Set a Cloudflare DNS API token to get an automatic Let's Encrypt
+    certificate (clients then need zero setup beyond adding the VPN connection); without one, a
+    self-signed CA is generated in /data/pki that clients must trust once. Supports optional
+    Cloudflare DDNS to keep your hostname pointed at your home IP. See the README for the
+    two-line PowerShell client setup with split tunneling.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/tailscale-ikev2-gateway/icon.png</Icon>
+  <ExtraParams>--cap-add=NET_ADMIN --device=/dev/net/tun --sysctl net.ipv4.ip_forward=1</ExtraParams>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Ports -->
+  <Config Name="IKE Port" Target="500" Default="500" Mode="udp" Description="IKEv2 negotiation port. Forward UDP 500 on your router to this host." Type="Port" Display="always" Required="true" Mask="false">500</Config>
+  <Config Name="NAT-T Port" Target="4500" Default="4500" Mode="udp" Description="IPsec NAT traversal port. Forward UDP 4500 on your router to this host." Type="Port" Display="always" Required="true" Mask="false">4500</Config>
+
+  <!-- Persistent data -->
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/tailscale-ikev2-gateway" Mode="rw" Description="Persists Tailscale node state, ACME certificates, and the self-signed PKI." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/tailscale-ikev2-gateway</Config>
+
+  <!-- Required settings -->
+  <Config Name="VPN Domain" Target="VPN_DOMAIN" Default="" Description="Public hostname clients connect to (e.g. vpn.example.com). Must resolve to your home IP. Used as the certificate identity." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="VPN Username" Target="VPN_USERNAME" Default="" Description="Username for the VPN login." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="VPN Password" Target="VPN_PASSWORD" Default="" Description="Password for the VPN login." Type="Variable" Display="always" Required="true" Mask="true"/>
+
+  <!-- Tailscale -->
+  <Config Name="Tailscale Auth Key" Target="TS_AUTHKEY" Default="" Description="Optional tailnet auth key (tskey-auth-...). If empty, check the container log on first start for an interactive login URL." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Tailscale Hostname" Target="TS_HOSTNAME" Default="tailscale-ikev2-gateway" Description="Name this node shows up as in your tailnet." Type="Variable" Display="advanced" Required="false" Mask="false">tailscale-ikev2-gateway</Config>
+  <Config Name="Tailscale Extra Args" Target="TS_EXTRA_ARGS" Default="" Description="Extra flags for 'tailscale up' (e.g. --accept-routes)." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <!-- Certificate / DNS -->
+  <Config Name="Cloudflare DNS API Token" Target="CF_DNS_API_TOKEN" Default="" Description="Cloudflare API token with Zone:DNS:Edit for the VPN domain's zone. Enables an automatic Let's Encrypt certificate (recommended — Windows then needs no cert import). Leave empty to use a self-signed CA from /data/pki." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="ACME Email" Target="ACME_EMAIL" Default="" Description="Optional email for the Let's Encrypt account." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Cloudflare DDNS" Target="DDNS_UPDATE" Default="false" Description="Set to 'true' to keep the VPN domain's A record updated with your current public IP (requires the Cloudflare token)." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+
+  <!-- Tunnel tuning -->
+  <Config Name="Allowed Subnets" Target="ALLOWED_SUBNETS" Default="100.64.0.0/10" Description="Comma-separated subnets the tunnel carries. Default is the Tailscale range only (split tunnel). Add e.g. 192.168.1.0/24 to also expose your LAN." Type="Variable" Display="advanced" Required="false" Mask="false">100.64.0.0/10</Config>
+  <Config Name="Client IP Pool" Target="VPN_POOL" Default="10.53.53.0/24" Description="Virtual IP range assigned to connected VPN clients." Type="Variable" Display="advanced" Required="false" Mask="false">10.53.53.0/24</Config>
+  <Config Name="Client DNS" Target="VPN_DNS" Default="" Description="Optional DNS server pushed to VPN clients. Set 100.100.100.100 for Tailscale MagicDNS names (this sends the client's DNS through the tunnel)." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Extra VPN Users" Target="VPN_USERS" Default="" Description="Optional additional logins, comma separated: alice:password1,bob:password2" Type="Variable" Display="advanced" Required="false" Mask="true"/>
+</Container>

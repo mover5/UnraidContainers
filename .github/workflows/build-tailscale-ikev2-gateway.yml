@@ -1,0 +1,19 @@
+name: Build tailscale-ikev2-gateway
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/tailscale-ikev2-gateway/**"
+  pull_request:
+    paths:
+      - "containers/tailscale-ikev2-gateway/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: tailscale-ikev2-gateway
+    permissions:
+      contents: read
+      packages: write

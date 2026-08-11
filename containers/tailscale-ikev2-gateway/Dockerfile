@@ -1,10 +1,13 @@
+# Tailscale binaries come from the official image — Alpine's package lags
+# months behind and gets flagged in the admin console for known CVEs
+FROM tailscale/tailscale:stable AS tailscale
+
 FROM alpine:3.22
 
 LABEL maintainer="mover5"
 LABEL org.opencontainers.image.source="https://github.com/mover5/UnraidContainers"
 
 # strongswan  — IKEv2 server (what the built-in Windows VPN client speaks)
-# tailscale   — joins the tailnet; VPN client traffic is NATed out tailscale0
 # acme.sh     — Let's Encrypt via Cloudflare DNS-01 so Windows needs no cert import
 RUN apk add --no-cache \
     bash \
@@ -13,8 +16,10 @@ RUN apk add --no-cache \
     iptables \
     jq \
     openssl \
-    strongswan \
-    tailscale
+    strongswan
+
+COPY --from=tailscale /usr/local/bin/tailscaled /usr/local/bin/tailscaled
+COPY --from=tailscale /usr/local/bin/tailscale /usr/local/bin/tailscale
 
 ARG ACME_SH_VERSION=3.1.1
 RUN apk add --no-cache --virtual .build-deps git \

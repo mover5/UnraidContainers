@@ -25,6 +25,9 @@ RUN apk add --no-cache --virtual .build-deps git \
     && rm -rf /tmp/acme.sh \
     && apk del .build-deps
 
+# Fail the build, not the runtime, if Alpine ever moves the charon daemon
+RUN test -x /usr/lib/strongswan/charon
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

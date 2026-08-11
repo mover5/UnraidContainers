@@ -221,7 +221,7 @@ EOF
 # charon (IKEv2 daemon)
 # ---------------------------------------------------------------------------
 CHARON=""
-for c in /usr/lib/ipsec/charon /usr/libexec/ipsec/charon; do
+for c in /usr/lib/strongswan/charon /usr/lib/ipsec/charon /usr/libexec/ipsec/charon; do
   [ -x "$c" ] && CHARON="$c" && break
 done
 [ -n "$CHARON" ] || die "charon binary not found"

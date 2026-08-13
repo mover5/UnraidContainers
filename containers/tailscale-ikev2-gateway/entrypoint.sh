@@ -244,15 +244,25 @@ for c in /usr/lib/strongswan/charon /usr/lib/ipsec/charon /usr/libexec/ipsec/cha
 done
 [ -n "$CHARON" ] || die "charon binary not found"
 
+# A docker stop/start keeps the container filesystem, so a vici socket file
+# from the previous run may still exist — remove it or the readiness check
+# below passes before the new charon is actually listening.
+rm -f /var/run/charon.vici
+
 log "Starting charon..."
 "$CHARON" &
 CHARON_PID=$!
 
-for _ in $(seq 1 30); do
-  [ -S /var/run/charon.vici ] && break
+loaded=""
+for _ in $(seq 1 60); do
+  kill -0 "$CHARON_PID" 2>/dev/null || die "charon exited during startup — check the log above"
+  if [ -S /var/run/charon.vici ] && swanctl --load-all 2>/dev/null; then
+    loaded=1
+    break
+  fi
   sleep 0.5
 done
-swanctl --load-all || die "swanctl --load-all failed — check the generated /etc/swanctl/swanctl.conf"
+[ -n "$loaded" ] || { swanctl --load-all; die "swanctl --load-all failed — check the generated /etc/swanctl/swanctl.conf"; }
 log "IKEv2 gateway ready on UDP 500/4500 as '$VPN_DOMAIN' (tunnel carries: $ALLOWED_SUBNETS)"
 
 # ---------------------------------------------------------------------------

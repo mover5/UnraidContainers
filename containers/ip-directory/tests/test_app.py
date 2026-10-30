@@ -17,6 +17,11 @@ SAMPLES = [
     ("192.168.1.78", "199.232.214.172", "16:01:45:de:91:d0", 5),
     ("199.232.214.172", "192.168.1.78", "cc:40:d0:74:bf:ef", 8),
     ("192.168.1.2", "239.255.255.250", "02:42:c0:a8:01:02", 3),
+    # Not devices, all seen on the real network:
+    ("192.168.1.88", "192.168.1.255", "bc:fc:e7:72:79:5e", 5),      # LAN broadcast (Spotify Connect)
+    ("192.168.1.30", "10.30.131.86", "0c:42:a1:63:8c:ec", 2),       # Tailscale probing a peer's LAN
+    ("172.17.0.4", "172.64.151.205", "0c:42:a1:63:8c:ec", 1),       # stray un-NATed Docker packet
+    ("192.168.1.82", "172.18.0.1", "b0:e4:5c:22:2d:4c", 1),         # client trying a Docker IP Plex advertised
 ]
 
 
@@ -182,3 +187,24 @@ def test_dns_rebinding_hosts_rejected(env):
     assert client.get("/", headers={"Host": "[::1]:9595"}).status_code == 200
     main.config.allowed_hosts = ["unraid.tail1234.ts.net"]
     assert client.get("/", headers={"Host": "unraid.tail1234.ts.net:9595"}).status_code == 200
+
+
+def test_non_devices_named_and_kept_out_of_inbox(env):
+    main, _, client = env
+    n = names(main)
+    assert n["192.168.1.255"]["name"] == "LAN broadcast"
+    for ip in ("10.30.131.86", "172.17.0.4", "172.18.0.1"):
+        assert n[ip]["kind"] == "private" and n[ip]["is_lan"] == 0 and n[ip]["mac"] is None, ip
+    page = client.get("/inbox").data.decode()
+    for text in ("LAN broadcast", "Private address", "10.30.131.86", "172.17.0.4"):
+        assert text not in page
+    # A stray 172.17.0.4 sample carried Unraid's MAC; Unraid's MAC must still point at Unraid's real IP.
+    assert main.db.query_one("SELECT last_ip FROM macs WHERE mac = '0c:42:a1:63:8c:ec'")["last_ip"] == "192.168.1.30"
+
+
+def test_lan_ness_recomputed_when_lan_cidrs_change(env):
+    main, _, _ = env
+    main.db.execute("UPDATE ips SET is_lan = 1, mac = '0c:42:a1:63:8c:ec' WHERE ip = '172.18.0.1'")  # as the old default stored it
+    main.refresher.relabel()
+    row = names(main)["172.18.0.1"]
+    assert (row["is_lan"], row["mac"], row["kind"]) == (0, None, "private")

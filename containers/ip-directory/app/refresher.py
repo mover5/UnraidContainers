@@ -248,49 +248,53 @@ class Refresher:
         )
 
     def dominant_macs(self):
+        """Majority vote over the last week: (LAN ip -> its MAC, MAC -> its main LAN ip)."""
         since = (datetime.now(timezone.utc) - timedelta(days=MAC_WINDOW_DAYS)).date().isoformat()
         rows = self.db.query(
-            """
-            SELECT ip, mac FROM (
-                SELECT ip, mac, SUM(samples) AS n,
-                       ROW_NUMBER() OVER (PARTITION BY ip ORDER BY SUM(samples) DESC) AS rk
-                FROM ip_mac_daily WHERE day >= ? GROUP BY ip, mac
-            ) WHERE rk = 1
-            """,
-            (since,),
+            "SELECT ip, mac, SUM(samples) AS n FROM ip_mac_daily WHERE day >= ? GROUP BY ip, mac", (since,)
         )
-        return {r["ip"]: r["mac"] for r in rows}
+        by_ip, by_mac = {}, {}
+        for r in rows:
+            if not self._is_lan(r["ip"]):
+                continue
+            if r["n"] > by_ip.get(r["ip"], (None, 0))[1]:
+                by_ip[r["ip"]] = (r["mac"], r["n"])
+            if r["n"] > by_mac.get(r["mac"], (None, 0))[1]:
+                by_mac[r["mac"]] = (r["ip"], r["n"])
+        return {ip: m for ip, (m, _) in by_ip.items()}, {m: ip for m, (ip, _) in by_mac.items()}
 
     def _resolve_all(self):
         """Resolve every IP into the ips table. Returns (ip count, labels that need writing)."""
         ctx = self._context()
-        macs = self.dominant_macs()
-        rows = self.db.query("SELECT ip, mac, is_lan, last_seen, label_written_at, label_written_hash FROM ips")
+        macs, mac_ips = self.dominant_macs()
+        rows = self.db.query("SELECT ip, mac, last_seen, label_written_at, label_written_hash FROM ips")
         rewrite_before = datetime.now(timezone.utc) - timedelta(hours=LABEL_REWRITE_HOURS)
         updates, to_write = [], []
         for row in rows:
             ip = row["ip"]
-            mac = macs.get(ip) or row["mac"]
+            # LAN_CIDRS can change between runs, so LAN-ness is recomputed rather than trusted from the row.
+            lan = self._is_lan(ip)
+            mac = (macs.get(ip) or row["mac"]) if lan else None
             label, _ = resolver.resolve(ip, mac, ctx)
-            label["mac"] = mac if row["is_lan"] else None  # lets Grafana's Devices-by-MAC table join too
+            label["mac"] = mac  # lets Grafana's Devices-by-MAC table join too
             h = resolver.label_hash(label)
             written = _parse(row["label_written_at"])
             stale = written is None or (written < rewrite_before and _parse(row["last_seen"]) > written)
             if h != row["label_written_hash"] or stale:
                 to_write.append(dict(label, ip=ip, hash=h))
-            updates.append((mac, label["vendor"], label["name"], label["kind"], label["source"], label["owner"],
-                            label["asn"], label["location"], label["country"], ip))
+            updates.append((int(lan), mac, label["vendor"], label["name"], label["kind"], label["source"],
+                            label["owner"], label["asn"], label["location"], label["country"], ip))
 
         with self.db.tx() as conn:
             conn.executemany(
                 """
-                UPDATE ips SET mac = ?, vendor = ?, name = ?, kind = ?, source = ?, owner = ?,
+                UPDATE ips SET is_lan = ?, mac = ?, vendor = ?, name = ?, kind = ?, source = ?, owner = ?,
                                asn = ?, location = ?, country = ?
                 WHERE ip = ?
                 """,
                 updates,
             )
-            conn.executemany("UPDATE macs SET last_ip = ? WHERE mac = ?", [(ip, mac) for ip, mac in macs.items()])
+            conn.executemany("UPDATE macs SET last_ip = ? WHERE mac = ?", [(ip, mac) for mac, ip in mac_ips.items()])
         return len(rows), to_write
 
     def _relabel_locked(self):

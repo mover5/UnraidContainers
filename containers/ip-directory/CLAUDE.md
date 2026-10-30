@@ -38,10 +38,16 @@ run.py → app/main.py (Flask routes, waitress server)
 ## Naming priority
 
 manual IP → manual MAC (LAN only) → manual range (most specific CIDR) → Tautulli → AdGuard (by IP, then MAC) →
-automatic: multicast/broadcast names · randomized MAC = "Unknown phone (xx:xx)" · `<vendor> device (xx:xx)` ·
-"Unknown LAN device" · public = `<owner> · <city, region>` (owner rename rules applied) · "Unknown".
+automatic: multicast/broadcast names · LAN broadcast · randomized MAC = "Unknown phone (xx:xx)" · `<vendor> device (xx:xx)` ·
+"Unknown LAN device" · Tailscale node (100.64/10) · "Private address (not on this LAN)" · public = `<owner> · <city, region>` (owner rename rules applied) · "Unknown".
 
 Names from `auto`, `vendor`, `geoip`, `rdns` are "automatic" and feed the Inbox until reviewed or named.
+Kinds `multicast`, `broadcast`, `private`, `tailscale` are not devices and never reach the Inbox.
+
+Why non-LAN private addresses show up at all (verified 2026-10-30): Docker addresses leaked by Plex when it ran on
+a bridge network (clients tried `172.x:32400`), stray un-NATed Docker packets, and Tailscale (`tailscaled` on UDP
+58443) probing peers' private LAN addresses. Containers on `lcarsnet`/`bridge` never appear on the switch under
+their own IP — Docker NATs them to Unraid's — so their dynamic IPs don't matter.
 
 ## Key decisions
 
@@ -74,7 +80,7 @@ Names from `auto`, `vendor`, `geoip`, `rdns` are "automatic" and feed the Inbox 
 | `MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY` | — | Optional |
 | `REFRESH_MINUTES` | `15` | |
 | `INITIAL_SCAN_DAYS` | `7` | How far back the first scan reaches |
-| `LAN_CIDRS` | `192.168.0.0/16,10.0.0.0/8,172.16.0.0/12` | Named by MAC |
+| `LAN_CIDRS` | `192.168.1.0/24` | Your real LAN subnet(s); named by MAC. Other private addresses are not devices |
 | `ALLOWED_HOSTS` | — | Hostnames the UI may be opened by; IPs and localhost always work (blocks DNS rebinding) |
 | `PORT` | `9595` | |
 | `CONFIG_PATH` | `/config` | SQLite, GeoLite2 files, manuf list |

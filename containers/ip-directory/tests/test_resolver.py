@@ -94,7 +94,7 @@ def test_public_ip_named_by_owner_and_location():
 
 
 def test_public_ip_without_geo_is_unknown_not_bare():
-    label, _ = resolver.resolve("203.0.113.9", None, ctx())
+    label, _ = resolver.resolve("45.33.32.156", None, ctx())
     assert label["name"] == "Unknown"
 
 
@@ -124,3 +124,31 @@ def test_label_hash_changes_with_name():
     a = {"name": "x", "kind": "lan", "source": "auto", "owner": None, "location": None}
     assert resolver.label_hash(a) != resolver.label_hash(dict(a, name="y"))
     assert resolver.label_hash(a) == resolver.label_hash(dict(a))
+
+
+HOME = [ipaddress.ip_network("192.168.1.0/24")]
+
+
+def test_lan_broadcast():
+    label, _ = resolver.resolve("192.168.1.255", None, resolver.Context(lan_networks=HOME))
+    assert (label["name"], label["kind"]) == ("LAN broadcast", "broadcast")
+
+
+def test_private_addresses_outside_lan_are_not_devices():
+    c = resolver.Context(lan_networks=HOME, geo=lambda ip: (_ for _ in ()).throw(AssertionError("no geo for private")))
+    for ip in ("172.18.0.1", "172.17.0.4", "10.30.131.86", "172.19.0.176"):
+        label, _ = resolver.resolve(ip, "0c:42:a1:63:8c:ec", c)
+        assert (label["name"], label["kind"], label["source"]) == ("Private address (not on this LAN)", "private", "auto"), ip
+        assert label["kind"] in resolver.NOT_DEVICE_KINDS
+
+
+def test_tailscale_and_link_local():
+    c = resolver.Context(lan_networks=HOME)
+    assert resolver.resolve("100.101.102.103", None, c)[0]["kind"] == "tailscale"
+    assert resolver.resolve("169.254.10.1", None, c)[0]["name"] == "Link-local address"
+
+
+def test_manual_name_still_wins_for_private_address():
+    c = resolver.Context(lan_networks=HOME, manual_ip={"10.8.0.1": {"name": "Work VPN gateway", "kind": "vpn"}})
+    label, _ = resolver.resolve("10.8.0.1", None, c)
+    assert (label["name"], label["kind"]) == ("Work VPN gateway", "vpn")

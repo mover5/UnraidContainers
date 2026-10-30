@@ -38,6 +38,7 @@ SOURCES = [
     ("vendors", "MAC vendors", "Wireshark manufacturer list"),
     ("rdns", "Reverse DNS", "Hostname hints for public IPs"),
 ]
+_NOT_DEVICE = ", ".join(f"'{k}'" for k in resolver.NOT_DEVICE_KINDS)
 _MAC = re.compile(r"^[0-9a-f]{2}(:[0-9a-f]{2}){5}$")
 
 
@@ -72,7 +73,7 @@ def inject():
     inbox = db.query_one(
         f"""
         SELECT COUNT(*) AS n FROM ips i JOIN ({_traffic_sql()}) t ON t.ip = i.ip
-        WHERE i.reviewed = 0 AND COALESCE(i.kind, '') != 'multicast'
+        WHERE i.reviewed = 0 AND COALESCE(i.kind, '') NOT IN ({_NOT_DEVICE})
           AND i.source IN ({",".join("?" * len(resolver.AUTO_SOURCES))})
         """,
         (_since(7), *resolver.AUTO_SOURCES),
@@ -202,7 +203,7 @@ def inbox():
     sql = f"""
         SELECT i.*, t.sent7, t.recv7, t.bytes7 FROM ips i
         JOIN ({_traffic_sql()}) t ON t.ip = i.ip
-        WHERE i.reviewed = 0 AND COALESCE(i.kind, '') != 'multicast'
+        WHERE i.reviewed = 0 AND COALESCE(i.kind, '') NOT IN ({_NOT_DEVICE})
           AND i.source IN ({placeholders}) AND i.is_lan = ?
         ORDER BY t.bytes7 DESC LIMIT 50
     """

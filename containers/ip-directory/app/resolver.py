@@ -9,6 +9,9 @@ from dataclasses import dataclass, field
 
 # Sources whose names were not chosen by a person — these feed the Inbox.
 AUTO_SOURCES = ("auto", "vendor", "geoip", "rdns")
+# Addresses that are not devices to name — never shown in the Inbox.
+NOT_DEVICE_KINDS = ("multicast", "broadcast", "private", "tailscale")
+TAILSCALE = ipaddress.ip_network("100.64.0.0/10")
 
 SPECIAL = {
     "255.255.255.255": "Broadcast",
@@ -82,7 +85,8 @@ def resolve(ip, mac, ctx):
     opinions = []
 
     geo = {}
-    if not lan and ctx.geo:
+    addr = ipaddress.ip_address(ip)
+    if not lan and ctx.geo and addr.is_global:
         geo = ctx.geo(ip) or {}
     owner = rename_owner(geo.get("org"), geo.get("asn"), ctx.owner_rules)
     location = format_location(geo.get("city"), geo.get("region"), geo.get("country"))
@@ -94,7 +98,6 @@ def resolve(ip, mac, ctx):
         opinions.append(("manual", m["name"]))
     if lan and mac and mac in ctx.manual_mac:
         opinions.append(("manual-mac", ctx.manual_mac[mac]["name"]))
-    addr = ipaddress.ip_address(ip)
     for net, rule in ctx.range_rules:
         if addr in net:
             opinions.append(("manual-range", rule["name"]))
@@ -110,8 +113,13 @@ def resolve(ip, mac, ctx):
         opinions.append(("adguard", ctx.adguard[mac]))
 
     vendor = ctx.vendor(mac) if (lan and mac and ctx.vendor) else None
+    auto_kind = None
     if ip in SPECIAL or addr.is_multicast:
         opinions.append(("auto", SPECIAL.get(ip, "Multicast")))
+        auto_kind = "broadcast" if ip == "255.255.255.255" else "multicast"
+    elif any(net.prefixlen < net.max_prefixlen and addr == net.broadcast_address for net in ctx.lan_networks):
+        opinions.append(("auto", "LAN broadcast"))
+        auto_kind = "broadcast"
     elif lan:
         if is_randomized_mac(mac):
             opinions.append(("auto", f"Unknown phone ({_short_mac(mac)})"))
@@ -120,6 +128,16 @@ def resolve(ip, mac, ctx):
         else:
             suffix = f" ({_short_mac(mac)})" if mac else ""
             opinions.append(("auto", f"Unknown LAN device{suffix}"))
+    elif addr in TAILSCALE:
+        opinions.append(("auto", "Tailscale node"))
+        auto_kind = "tailscale"
+    elif addr.is_link_local:
+        opinions.append(("auto", "Link-local address"))
+        auto_kind = "private"
+    elif addr.is_private:
+        # Docker networks inside Unraid, or a remote peer's LAN address (e.g. Tailscale probing for a direct path).
+        opinions.append(("auto", "Private address (not on this LAN)"))
+        auto_kind = "private"
     else:
         if owner and location:
             opinions.append(("geoip", f"{owner} · {location}"))
@@ -140,8 +158,8 @@ def resolve(ip, mac, ctx):
         kind = "plex"
     elif source == "auto" and name.startswith("Unknown phone"):
         kind = "phone"
-    elif addr.is_multicast or ip in SPECIAL:
-        kind = "multicast"
+    elif auto_kind and source == "auto":
+        kind = auto_kind
 
     label = dict(base, name=name, kind=kind, source=source, vendor=vendor)
     return label, opinions

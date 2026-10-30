@@ -73,5 +73,6 @@ Names from `auto`, `vendor`, `geoip`, `rdns` are "automatic" and feed the Inbox 
 | `REFRESH_MINUTES` | `15` | |
 | `INITIAL_SCAN_DAYS` | `7` | How far back the first scan reaches |
 | `LAN_CIDRS` | `192.168.0.0/16,10.0.0.0/8,172.16.0.0/12` | Named by MAC |
+| `ALLOWED_HOSTS` | — | Hostnames the UI may be opened by; IPs and localhost always work (blocks DNS rebinding) |
 | `PORT` | `9595` | |
 | `CONFIG_PATH` | `/config` | SQLite, GeoLite2 files, manuf list |

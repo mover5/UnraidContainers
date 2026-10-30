@@ -116,14 +116,27 @@ def _back(default):
     return redirect(nxt if local else default)
 
 
+def _host_allowed(host):
+    """IP literals and localhost can't be DNS-rebound; any hostname must be listed in ALLOWED_HOSTS."""
+    name = (urlsplit(f"//{host}").hostname or "").lower()
+    if name == "localhost" or name in config.allowed_hosts:
+        return True
+    try:
+        ipaddress.ip_address(name)
+        return True
+    except ValueError:
+        return False
+
+
 @app.before_request
-def same_origin_posts_only():
-    # No login, so stop other web pages from submitting edits through the viewer's browser.
-    if request.method != "POST":
-        return None
-    source = request.headers.get("Origin") or request.headers.get("Referer")
-    if source and urlsplit(source).netloc != request.host:
-        abort(403)
+def guard_requests():
+    # No login, so: refuse DNS-rebinding hosts, and refuse edits submitted by other web pages.
+    if not _host_allowed(request.host):
+        abort(403, "Host not allowed - add it to ALLOWED_HOSTS")
+    if request.method == "POST":
+        source = request.headers.get("Origin") or request.headers.get("Referer")
+        if not source or urlsplit(source).netloc != request.host:
+            abort(403)
     return None
 
 

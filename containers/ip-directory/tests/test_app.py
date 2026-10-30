@@ -50,7 +50,9 @@ def env(tmp_path, monkeypatch):
         ("50.82.218.165", "oyoj4", "oyoj4", "Roku", "Roku", int(now.timestamp())),
     )
     main.refresher.refresh()
-    return main, written, main.app.test_client()
+    client = main.app.test_client()
+    client.environ_base["HTTP_ORIGIN"] = "http://localhost"  # what a browser sends on a same-site form POST
+    return main, written, client
 
 
 def names(main):
@@ -165,3 +167,18 @@ def test_errors_shown_in_ui_are_redacted(env):
     )
     assert "SECRETKEY123" not in msg and "apikey" not in msg
     assert "http://tautulli:8181/api/v2?***" in msg
+
+
+def test_post_without_origin_rejected(env):
+    _, _, client = env
+    client.environ_base.pop("HTTP_ORIGIN")
+    assert client.post("/refresh").status_code == 403
+
+
+def test_dns_rebinding_hosts_rejected(env):
+    main, _, client = env
+    assert client.get("/", headers={"Host": "attacker.example"}).status_code == 403
+    assert client.get("/", headers={"Host": "192.168.1.30:9595"}).status_code == 200
+    assert client.get("/", headers={"Host": "[::1]:9595"}).status_code == 200
+    main.config.allowed_hosts = ["unraid.tail1234.ts.net"]
+    assert client.get("/", headers={"Host": "unraid.tail1234.ts.net:9595"}).status_code == 200

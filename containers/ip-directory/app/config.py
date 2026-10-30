@@ -31,6 +31,8 @@ class Config:
         self.maxmind_license_key = _env("MAXMIND_LICENSE_KEY")
 
         # Comma-separated CIDRs treated as "your LAN" (named by MAC).
+        # Hostnames the UI may be reached by (IP addresses and localhost always work), e.g. a Tailscale name.
+        self.allowed_hosts = [h.strip().lower() for h in _env("ALLOWED_HOSTS").split(",") if h.strip()]
         self.lan_cidrs = [c.strip() for c in _env("LAN_CIDRS", "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12").split(",") if c.strip()]
 
     @property

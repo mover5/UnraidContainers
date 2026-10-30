@@ -1,0 +1,19 @@
+name: Build ip-directory
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "containers/ip-directory/**"
+  pull_request:
+    paths:
+      - "containers/ip-directory/**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container_name: ip-directory
+    permissions:
+      contents: read
+      packages: write

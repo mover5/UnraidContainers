@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Sources · IP-Directory{% endblock %}
+{% block content %}
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+  <h1 style="margin:0">Sources</h1>
+  <form method="post" action="{{ url_for('refresh_now') }}" style="margin-left:auto">
+    <button type="submit" {{ 'disabled' if refresh_running }}>{{ 'Refreshing…' if refresh_running else 'Refresh now' }}</button>
+  </form>
+</div>
+<p class="sub">Last full refresh {{ last_refresh | ago }} · runs every {{ config.refresh_minutes }} min · sFlow scanned up to {{ scan_until[:16].replace('T', ' ') if scan_until else 'not yet' }} UTC</p>
+
+<div class="stats">
+  <div class="stat"><div class="v">{{ stats.ips }}</div><div class="l">IPs known</div></div>
+  <div class="stat"><div class="v">{{ stats.ips_7d }}</div><div class="l">active in 7 days</div></div>
+  <div class="stat"><div class="v">{{ stats.macs }}</div><div class="l">LAN MACs</div></div>
+  <div class="stat"><div class="v">{{ stats.manual_ip + stats.manual_mac }}</div><div class="l">named by you</div></div>
+  <div class="stat"><div class="v">{{ stats.plex }}</div><div class="l">Plex IPs (Tautulli)</div></div>
+  <div class="stat"><div class="v">{{ stats.bytes_7d | bytes }}</div><div class="l">sampled traffic 7d</div></div>
+</div>
+
+<h2>Health</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Source</th><th>Used for</th><th>Status</th><th>Last success</th><th>Detail</th></tr></thead>
+  <tbody>
+  {% for key, title, purpose in sources %}
+    {% set s = status.get(key) %}
+    <tr>
+      <td><strong>{{ title }}</strong></td>
+      <td class="muted">{{ purpose }}</td>
+      <td>
+        {% if not s %}<span class="muted">waiting</span>
+        {% elif s.last_error == 'not configured' %}<span class="muted">not configured</span>
+        {% elif s.last_error %}<span class="err">error</span>
+        {% else %}<span class="ok">ok</span>{% endif %}
+      </td>
+      <td class="muted">{{ s.last_success | ago if s else '' }}</td>
+      <td>{% if s and s.last_error and s.last_error != 'not configured' %}<span class="err mono">{{ s.last_error }}</span>{% else %}<span class="muted">{{ s.detail if s else '' }}</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="grid" style="margin-top:16px">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Names by source</th><th class="num">IPs</th></tr></thead>
+      <tbody>{% for r in by_source %}<tr><td><a href="{{ url_for('directory', source=r.source) }}"><span class="chip {{ r.source }}">{{ r.source }}</span></a></td><td class="num">{{ r.n }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Names by kind</th><th class="num">IPs</th></tr></thead>
+      <tbody>{% for r in by_kind %}<tr><td><a href="{{ url_for('directory', kind=r.kind) }}"><span class="chip">{{ r.kind }}</span></a></td><td class="num">{{ r.n }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

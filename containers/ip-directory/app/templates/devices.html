@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Devices · IP-Directory{% endblock %}
+{% block content %}
+<h1>Devices</h1>
+<p class="sub">LAN hardware addresses seen in the sFlow data. A name set here follows the device to whatever IP it gets. Randomized ("private") MACs are marked — those devices show as <em>Unknown phone</em> until named.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>MAC</th><th>Vendor</th><th>Current IP</th><th>Showing as</th><th>Last seen</th><th>Device name</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="mono">{{ r.mac }}{% if r.randomized %} <span class="chip" title="Locally-administered MAC — usually a phone or laptop using a private Wi-Fi address">randomized</span>{% endif %}</td>
+      <td class="muted">{{ r.vendor or '' }}</td>
+      <td>{% if r.last_ip %}<a class="mono" href="{{ url_for('ip_detail', ip=r.last_ip) }}">{{ r.last_ip }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td>{{ r.current_name or '' }} {% if r.current_source %}<span class="chip {{ r.current_source }}">{{ r.current_source }}</span>{% endif %}</td>
+      <td class="muted">{{ r.last_seen | ago if r.last_seen else 'not seen yet' }}</td>
+      <td>
+        <form class="inline" method="post" action="{{ url_for('set_mac_label', mac=r.mac) }}">
+          <input name="name" required size="16" placeholder="Name" value="{{ r.manual_name or '' }}">
+          <input name="kind" list="kinds" size="8" placeholder="kind" value="{{ r.manual_kind or '' }}">
+          <button type="submit">Save</button>
+        </form>
+        {% if r.manual_name %}
+        <form class="inline" method="post" action="{{ url_for('delete_mac_label', mac=r.mac) }}">
+          <button class="link" type="submit">remove</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted">No devices yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Directory</h1>
+<p class="sub">{{ total }} IPs{% if q or kind or source or scope %} match{% else %} seen on the network{% endif %}. Traffic is the last 7 days of sampled sFlow.</p>
+
+<form class="filters">
+  <input type="search" name="q" placeholder="Search…" value="{{ q }}">
+  <select name="scope">
+    <option value="">LAN + internet</option>
+    <option value="lan" {{ 'selected' if scope == 'lan' }}>LAN only</option>
+    <option value="internet" {{ 'selected' if scope == 'internet' }}>Internet only</option>
+  </select>
+  <select name="kind">
+    <option value="">Any kind</option>
+    {% for k in facets.kinds %}<option {{ 'selected' if kind == k }}>{{ k }}</option>{% endfor %}
+  </select>
+  <select name="source">
+    <option value="">Any source</option>
+    {% for s in facets.sources %}<option {{ 'selected' if source == s }}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    <option value="traffic" {{ 'selected' if sort == 'traffic' }}>Most traffic</option>
+    <option value="recent" {{ 'selected' if sort == 'recent' }}>Recently seen</option>
+    <option value="name" {{ 'selected' if sort == 'name' }}>Name</option>
+    <option value="ip" {{ 'selected' if sort == 'ip' }}>IP</option>
+  </select>
+  <button type="submit">Filter</button>
+  {% if q or kind or source or scope %}<a href="{{ url_for('directory') }}">Clear</a>{% endif %}
+</form>
+
+<div class="table-wrap">
+<table>
+  <thead><tr>
+    <th>Name</th><th>Kind</th><th>Source</th><th>Owner / location</th><th>MAC</th>
+    <th class="num">Sent 7d</th><th class="num">Received 7d</th><th>Last seen</th>
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="name-cell"><a href="{{ url_for('ip_detail', ip=r.ip) }}">{{ r.name or r.ip }}</a><br><span class="ip mono">{{ r.ip }}</span></td>
+      <td><span class="chip">{{ r.kind or '' }}</span></td>
+      <td><span class="chip {{ r.source }}">{{ r.source or '' }}</span></td>
+      <td>{% if r.is_lan %}<span class="muted">{{ r.vendor or '' }}</span>{% else %}{{ r.owner or '' }}<br><span class="muted">{{ r.location or '' }}</span>{% endif %}</td>
+      <td class="mono muted">{{ r.mac or '' }}</td>
+      <td class="num">{{ r.sent7 | bytes }}</td>
+      <td class="num">{{ r.recv7 | bytes }}</td>
+      <td class="muted">{{ r.last_seen | ago }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="muted">Nothing yet. The first scan of the sFlow data runs a few seconds after start — check <a href="{{ url_for('sources') }}">Sources</a>.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a href="{{ url_for('directory', q=q, kind=kind, source=source, scope=scope, sort=sort, page=page - 1) }}">← Previous</a>{% endif %}
+  <span>Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a href="{{ url_for('directory', q=q, kind=kind, source=source, scope=scope, sort=sort, page=page + 1) }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

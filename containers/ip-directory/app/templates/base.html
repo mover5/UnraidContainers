@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}IP-Directory{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <a class="brand" href="{{ url_for('directory') }}">IP-Directory</a>
+  <nav>
+    {% set ep = request.endpoint %}
+    <a href="{{ url_for('directory') }}" class="{{ 'active' if ep == 'directory' }}">Directory</a>
+    <a href="{{ url_for('inbox') }}" class="{{ 'active' if ep == 'inbox' }}">Inbox{% if inbox_count %}<span class="badge">{{ inbox_count }}</span>{% endif %}</a>
+    <a href="{{ url_for('devices') }}" class="{{ 'active' if ep == 'devices' }}">Devices</a>
+    <a href="{{ url_for('rules') }}" class="{{ 'active' if ep == 'rules' }}">Rules</a>
+    <a href="{{ url_for('sources') }}" class="{{ 'active' if ep == 'sources' }}">Sources</a>
+  </nav>
+  {% if refresh_running %}<span class="running">● refreshing…</span>{% endif %}
+  <form action="{{ url_for('directory') }}">
+    <input type="search" name="q" placeholder="Search IP, name, owner, MAC…" value="{{ q or '' }}">
+  </form>
+</header>
+<main>
+  {% block content %}{% endblock %}
+</main>
+<datalist id="kinds">{% for k in kinds %}<option value="{{ k }}">{% endfor %}</datalist>
+</body>
+</html>

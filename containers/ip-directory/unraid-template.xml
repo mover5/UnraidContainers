@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>ip-directory</Name>
+  <Repository>ghcr.io/mover5/ip-directory:latest</Repository>
+  <Registry>https://ghcr.io/mover5/ip-directory</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Names every IP seen on the network. Reads sFlow samples from InfluxDB, names LAN devices by MAC,
+    Plex users from Tautulli, clients from AdGuard Home, and everything else by owner and location
+    (MaxMind GeoLite2). Writes the names back to InfluxDB for Grafana, with a web UI to browse and
+    edit them. LAN/Tailscale only - there is no login.
+  </Overview>
+  <Category>Network:Management Tools:</Category>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/ip-directory/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:9595]/</WebUI>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="9595" Default="9595" Mode="tcp" Description="Port for the IP-Directory web UI" Type="Port" Display="always" Required="true" Mask="false"/>
+
+  <!-- InfluxDB (required) -->
+  <Config Name="InfluxDB URL" Target="INFLUX_URL" Default="http://192.168.1.30:8186" Mode="" Description="InfluxDB v2 holding the sFlow data" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="InfluxDB Token" Target="INFLUX_TOKEN" Default="" Mode="" Description="Token with read AND write access to the bucket (reads sFlow, writes ip_labels)" Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="InfluxDB Org" Target="INFLUX_ORG" Default="LCARS" Mode="" Description="InfluxDB organization" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="InfluxDB Bucket" Target="INFLUX_BUCKET" Default="unraid" Mode="" Description="Bucket with the netflow measurement; labels are written here too" Type="Variable" Display="always" Required="true" Mask="false"/>
+
+  <!-- Tautulli (optional) -->
+  <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="" Mode="" Description="e.g. http://192.168.1.30:8181 - leave blank to skip Plex users" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Tautulli API Key" Target="TAUTULLI_API_KEY" Default="" Mode="" Description="Tautulli - Settings - Web Interface - API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+
+  <!-- AdGuard Home (optional) -->
+  <Config Name="AdGuard URL" Target="ADGUARD_URL" Default="http://192.168.1.2" Mode="" Description="AdGuard Home web address - leave blank to skip. On macvlan (br0), enable Settings - Docker - Host access to custom networks" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="AdGuard User" Target="ADGUARD_USER" Default="" Mode="" Description="AdGuard Home login" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="AdGuard Password" Target="ADGUARD_PASSWORD" Default="" Mode="" Description="AdGuard Home password" Type="Variable" Display="always" Required="false" Mask="true"/>
+
+  <!-- MaxMind (optional) -->
+  <Config Name="MaxMind Account ID" Target="MAXMIND_ACCOUNT_ID" Default="" Mode="" Description="Free GeoLite2 account at maxmind.com - leave blank to skip owner/location" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="MaxMind License Key" Target="MAXMIND_LICENSE_KEY" Default="" Mode="" Description="GeoLite2 license key" Type="Variable" Display="always" Required="false" Mask="true"/>
+
+  <!-- Advanced -->
+  <Config Name="Refresh Minutes" Target="REFRESH_MINUTES" Default="15" Mode="" Description="How often to scan sFlow and refresh sources" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="LAN CIDRs" Target="LAN_CIDRS" Default="192.168.0.0/16,10.0.0.0/8,172.16.0.0/12" Mode="" Description="Ranges treated as LAN (named by MAC)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <!-- Volumes -->
+  <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/ip-directory" Mode="rw" Description="Database, GeoLite2 files, vendor list" Type="Path" Display="always" Required="true" Mask="false"/>
+</Container>

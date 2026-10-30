@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ label.name }} · IP-Directory{% endblock %}
+{% block content %}
+<h1>{{ label.name }}</h1>
+<p class="sub mono">{{ ip }}{% if row and row.mac %} · {{ row.mac }}{% endif %}
+  · <span class="chip">{{ label.kind }}</span> <span class="chip {{ label.source }}">{{ label.source }}</span></p>
+
+<div class="grid">
+  <div class="panel">
+    <h2 style="margin-top:0">Details</h2>
+    <dl class="kv">
+      {% if row %}
+        <dt>First seen</dt><dd>{{ row.first_seen | ago }}</dd>
+        <dt>Last seen</dt><dd>{{ row.last_seen | ago }}</dd>
+        <dt>Traffic 7d</dt><dd>{{ row.sent7 | bytes }} sent · {{ row.recv7 | bytes }} received</dd>
+      {% else %}
+        <dt>Seen</dt><dd class="muted">Not in the sFlow data</dd>
+      {% endif %}
+      {% if row and row.mac %}
+        <dt>MAC</dt><dd class="mono">{{ row.mac }}{% if label.vendor %} <span class="muted">({{ label.vendor }})</span>{% endif %}</dd>
+        {% if other_ips %}<dt>Same MAC</dt><dd>{% for o in other_ips %}<a class="mono" href="{{ url_for('ip_detail', ip=o.ip) }}">{{ o.ip }}</a> {% endfor %}</dd>{% endif %}
+      {% endif %}
+      {% if geo.org or geo.asn %}<dt>Owner</dt><dd>{{ label.owner }}{% if label.owner != geo.org %} <span class="muted">({{ geo.org }})</span>{% endif %} <span class="muted">AS{{ geo.asn }}</span></dd>{% endif %}
+      {% if label.location %}<dt>Location</dt><dd>{{ label.location }} <span class="muted">(approximate)</span></dd>{% endif %}
+      {% if row and row.rdns %}<dt>Reverse DNS</dt><dd class="mono">{{ row.rdns }}</dd>{% endif %}
+      {% if tautulli %}<dt>Plex</dt><dd>{{ tautulli.friendly_name }} · {{ tautulli.player }} ({{ tautulli.platform }})</dd>{% endif %}
+    </dl>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">What each source says</h2>
+    <table>
+      {% for src, name in opinions %}
+        <tr class="{{ 'opinion-chosen' if loop.first }}">
+          <td><span class="chip {{ src }}">{{ src }}</span></td>
+          <td>{{ name }}{% if loop.first %} <span class="muted">← used</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <p class="muted" style="margin-bottom:0">Priority: manual IP → manual MAC → manual range → Tautulli → AdGuard → automatic.</p>
+  </div>
+</div>
+
+<div class="grid">
+  {% if row and row.is_lan and row.mac %}
+  <div class="panel">
+    <h2 style="margin-top:0">Name this device <span class="muted">(by MAC — recommended for LAN)</span></h2>
+    <form method="post" action="{{ url_for('set_mac_label', mac=row.mac) }}">
+      <input type="hidden" name="next" value="{{ url_for('ip_detail', ip=ip) }}">
+      <div class="field"><label>Name</label><input name="name" required value="{{ manual_mac.name if manual_mac else '' }}"></div>
+      <div class="field"><label>Kind</label><input name="kind" list="kinds" value="{{ manual_mac.kind if manual_mac else '' }}"></div>
+      <div class="field"><label>Notes</label><input name="notes" value="{{ manual_mac.notes if manual_mac else '' }}"></div>
+      <button type="submit">Save device name</button>
+    </form>
+    {% if manual_mac %}
+    <form method="post" action="{{ url_for('delete_mac_label', mac=row.mac) }}" style="margin-top:8px">
+      <input type="hidden" name="next" value="{{ url_for('ip_detail', ip=ip) }}">
+      <button class="danger" type="submit">Remove device name</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="panel">
+    <h2 style="margin-top:0">Name this IP</h2>
+    <form method="post" action="{{ url_for('set_ip_label', ip=ip) }}">
+      <div class="field"><label>Name</label><input name="name" required value="{{ manual_ip.name if manual_ip else '' }}"></div>
+      <div class="field"><label>Kind</label><input name="kind" list="kinds" value="{{ manual_ip.kind if manual_ip else '' }}"></div>
+      <div class="field"><label>Notes</label><input name="notes" value="{{ manual_ip.notes if manual_ip else '' }}"></div>
+      <button type="submit">Save IP name</button>
+    </form>
+    {% if manual_ip %}
+    <form method="post" action="{{ url_for('delete_ip_label', ip=ip) }}" style="margin-top:8px">
+      <button class="danger" type="submit">Remove IP name</button>
+    </form>
+    {% endif %}
+    {% if row and row.reviewed %}
+    <form method="post" action="{{ url_for('review_ip', ip=ip) }}" style="margin-top:8px">
+      <input type="hidden" name="undo" value="1"><input type="hidden" name="next" value="{{ url_for('ip_detail', ip=ip) }}">
+      <button class="link" type="submit">Put back in the inbox</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if live %}
+<div class="panel">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0">Traffic</h2>
+    <select id="hours">
+      <option value="24">24 hours</option>
+      <option value="168" selected>7 days</option>
+      <option value="720">30 days</option>
+    </select>
+    <span class="legend"><span><i style="background:var(--sent)"></i>sent</span><span><i style="background:var(--recv)"></i>received</span></span>
+    <span class="muted" style="margin-left:auto">Sampled sFlow — good for comparison, under-reports absolute volume.</span>
+  </div>
+  <div id="chart"><p class="muted">Loading…</p></div>
+</div>
+<div class="grid">
+  <div class="panel"><h2 style="margin-top:0">Talks to</h2><div id="peers" class="muted">Loading…</div></div>
+  <div class="panel"><h2 style="margin-top:0">Service ports</h2><div id="ports" class="muted">Loading…</div></div>
+</div>
+<script src="{{ url_for('static', filename='ip.js') }}" data-ip="{{ ip }}" data-detail="{{ url_for('ip_detail', ip='__IP__') }}" data-api="{{ url_for('api_live', ip=ip) }}"></script>
+{% endif %}
+{% endblock %}

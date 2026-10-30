@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Rules · IP-Directory{% endblock %}
+{% block content %}
+<h1>Rules</h1>
+{% if request.args.error %}<p class="err">{{ request.args.error }}</p>{% endif %}
+
+<h2>Owner renames</h2>
+<p class="sub">Tidy the owner names MaxMind reports. Checked top to bottom; first match wins. Pattern is the owner name
+  (<code>*</code> wildcards allowed, case-insensitive) or an AS number like <code>AS16509</code>.</p>
+<div class="grid">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Pattern</th><th>Shown as</th><th></th></tr></thead>
+    <tbody>
+    {% for r in owner_rules %}
+      <tr>
+        <td class="mono">{{ r.pattern }}</td>
+        <td>{{ r.replacement }}</td>
+        <td class="num">
+          <form class="inline" method="post" action="{{ url_for('move_owner_rule', rule_id=r.id) }}">
+            <button class="link" name="dir" value="up" type="submit" title="Move up">↑</button>
+            <button class="link" name="dir" value="down" type="submit" title="Move down">↓</button>
+          </form>
+          <form class="inline" method="post" action="{{ url_for('delete_owner_rule', rule_id=r.id) }}">
+            <button class="link" type="submit">delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+      <tr>
+        <td colspan="3">
+          <form class="inline" method="post" action="{{ url_for('add_owner_rule') }}">
+            <input name="pattern" required placeholder="e.g. AMAZON-* or AS16509" size="22">
+            <input name="replacement" required placeholder="Shown as" size="18">
+            <button type="submit">Add rule</button>
+          </form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Top owners (7d)</th><th class="num">IPs</th><th class="num">Traffic</th></tr></thead>
+    <tbody>
+    {% for o in top_owners %}
+      <tr><td><a href="{{ url_for('directory', q=o.owner) }}">{{ o.owner }}</a></td><td class="num">{{ o.ips }}</td><td class="num">{{ o.bytes7 | bytes }}</td></tr>
+    {% else %}
+      <tr><td colspan="3" class="muted">No owner data yet — needs MaxMind.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<h2>IP ranges</h2>
+<p class="sub">Name a whole block at once, e.g. a VPN provider or your work network. Overrides Tautulli and AdGuard; a name on a single IP or device still wins. The most specific range wins.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Range</th><th>Name</th><th>Kind</th><th>Notes</th><th></th></tr></thead>
+  <tbody>
+  {% for r in range_rules %}
+    <tr>
+      <td class="mono">{{ r.cidr }}</td><td>{{ r.name }}</td><td><span class="chip">{{ r.kind }}</span></td><td class="muted">{{ r.notes }}</td>
+      <td class="num">
+        <form class="inline" method="post" action="{{ url_for('delete_range_rule', rule_id=r.id) }}"><button class="link" type="submit">delete</button></form>
+      </td>
+    </tr>
+  {% endfor %}
+    <tr>
+      <td colspan="5">
+        <form class="inline" method="post" action="{{ url_for('add_range_rule') }}">
+          <input name="cidr" required placeholder="e.g. 17.0.0.0/8" size="18">
+          <input name="name" required placeholder="Name" size="18">
+          <input name="kind" list="kinds" placeholder="kind" size="8">
+          <input name="notes" placeholder="Notes" size="20">
+          <button type="submit">Add range</button>
+        </form>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+{% endblock %}

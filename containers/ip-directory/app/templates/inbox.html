@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Inbox · IP-Directory{% endblock %}
+{% block content %}
+<h1>Inbox</h1>
+<p class="sub">Named automatically, not by you, Tautulli or AdGuard. Busiest first (last 7 days). Give it a name, or mark it as fine.</p>
+
+{% macro inbox_table(rows, lan) %}
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Current name</th><th>{% if lan %}MAC / vendor{% else %}Owner / reverse DNS{% endif %}</th><th class="num">Traffic 7d</th><th>Name it</th><th></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="name-cell"><a href="{{ url_for('ip_detail', ip=r.ip) }}">{{ r.name }}</a><br><span class="ip mono">{{ r.ip }}</span></td>
+      <td>
+        {% if lan %}<span class="mono">{{ r.mac or '—' }}</span><br><span class="muted">{{ r.vendor or '' }}</span>
+        {% else %}{{ r.owner or '—' }}<br><span class="muted mono">{{ r.rdns or '' }}</span>{% endif %}
+      </td>
+      <td class="num">{{ r.bytes7 | bytes }}</td>
+      <td>
+        {% if lan and r.mac %}
+          <form class="inline" method="post" action="{{ url_for('set_mac_label', mac=r.mac) }}">
+            <input name="name" placeholder="Device name" required size="18">
+            <input name="kind" list="kinds" placeholder="kind" size="8">
+            <input type="hidden" name="next" value="{{ url_for('inbox') }}">
+            <button type="submit">Save</button>
+          </form>
+        {% else %}
+          <form class="inline" method="post" action="{{ url_for('set_ip_label', ip=r.ip) }}">
+            <input name="name" placeholder="Name" required size="18">
+            <input name="kind" list="kinds" placeholder="kind" size="8">
+            <input type="hidden" name="next" value="{{ url_for('inbox') }}">
+            <button type="submit">Save</button>
+          </form>
+        {% endif %}
+      </td>
+      <td>
+        <form class="inline" method="post" action="{{ url_for('review_ip', ip=r.ip) }}">
+          <input type="hidden" name="next" value="{{ url_for('inbox') }}">
+          <button class="secondary" type="submit" title="Keep the automatic name and remove from the inbox">Looks fine</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">Nothing to review.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}
+
+<h2>LAN devices <span class="muted">({{ lan|length }})</span></h2>
+<p class="sub">Named by MAC, so the name follows the device if its IP changes.</p>
+{{ inbox_table(lan, true) }}
+
+<h2>Internet <span class="muted">({{ internet|length }})</span></h2>
+{{ inbox_table(internet, false) }}
+{% endblock %}

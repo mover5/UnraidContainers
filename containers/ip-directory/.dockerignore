@@ -1,0 +1,6 @@
+tests
+requirements-dev.txt
+CLAUDE.md
+**/__pycache__
+.pytest_cache
+config

@@ -47,7 +47,7 @@
   <!-- Advanced -->
   <Config Name="Refresh Minutes" Target="REFRESH_MINUTES" Default="15" Mode="" Description="How often to scan sFlow and refresh sources" Type="Variable" Display="advanced" Required="false" Mask="false"/>
   <Config Name="Allowed Hosts" Target="ALLOWED_HOSTS" Default="" Mode="" Description="Comma-separated hostnames the web UI may be opened by (e.g. unraid.tailnet.ts.net, ipdir.example.com). IP addresses always work. Blocks DNS-rebinding attacks." Type="Variable" Display="advanced" Required="false" Mask="false"/>
-  <Config Name="LAN CIDRs" Target="LAN_CIDRS" Default="192.168.0.0/16,10.0.0.0/8,172.16.0.0/12" Mode="" Description="Ranges treated as LAN (named by MAC)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="LAN CIDRs" Target="LAN_CIDRS" Default="192.168.1.0/24" Mode="" Description="Your actual LAN subnet(s), comma-separated. Devices here are named by MAC; other private addresses (Docker networks, Tailscale peers' LANs) are labelled automatically and kept out of the Inbox" Type="Variable" Display="advanced" Required="false" Mask="false"/>
 
   <!-- Volumes -->
   <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/ip-directory" Mode="rw" Description="Database, GeoLite2 files, vendor list" Type="Path" Display="always" Required="true" Mask="false"/>

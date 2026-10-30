@@ -208,3 +208,25 @@ def test_lan_ness_recomputed_when_lan_cidrs_change(env):
     main.refresher.relabel()
     row = names(main)["172.18.0.1"]
     assert (row["is_lan"], row["mac"], row["kind"]) == (0, None, "private")
+
+
+def test_mark_all_internet_reviews_every_one_not_just_shown(env):
+    main, _, client = env
+    # More internet IPs than the 50 the page shows.
+    day = main._since(0)
+    with main.db.tx() as conn:
+        for i in range(120):
+            ip = f"8.8.{i // 250}.{i % 250 + 1}"
+            conn.execute("INSERT INTO ips (ip, first_seen, last_seen, is_lan, name, kind, source) VALUES (?, ?, ?, 0, 'Unknown', 'internet', 'auto')",
+                         (ip, "2026-10-30T00:00:00+00:00", "2026-10-30T00:00:00+00:00"))
+            conn.execute("INSERT INTO ip_daily (ip, day, bytes_sent, samples) VALUES (?, ?, 1000, 1)", (ip, day))
+    page = client.get("/inbox").data.decode()
+    assert "Showing the busiest 50" in page and "Mark all" in page
+    lan_before = main.db.query_one("SELECT COUNT(*) AS n FROM ips WHERE is_lan = 1 AND reviewed = 1")["n"]
+
+    assert client.post("/inbox/review-all", data={"scope": "internet"}).status_code == 302
+    sql, params = main._inbox_from(False)
+    assert main.db.query_one(f"SELECT COUNT(*) AS n {sql}", params)["n"] == 0
+    assert main.db.query_one("SELECT COUNT(*) AS n FROM ips WHERE is_lan = 1 AND reviewed = 1")["n"] == lan_before  # LAN untouched
+    assert "Unknown phone" in client.get("/inbox").data.decode()
+    assert client.post("/inbox/review-all", data={"scope": "everything"}).status_code == 400

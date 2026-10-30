@@ -49,10 +49,20 @@
 </div>
 {% endmacro %}
 
-<h2>LAN devices <span class="muted">({{ lan|length }})</span></h2>
-<p class="sub">Named by MAC, so the name follows the device if its IP changes.</p>
+<h2>LAN devices <span class="muted">({{ lan_total }})</span></h2>
+<p class="sub">Named by MAC, so the name follows the device if its IP changes.{% if lan_total > lan|length %} Showing the busiest {{ lan|length }}.{% endif %}</p>
 {{ inbox_table(lan, true) }}
 
-<h2>Internet <span class="muted">({{ internet|length }})</span></h2>
+<div class="section-head">
+  <h2>Internet <span class="muted">({{ internet_total }})</span></h2>
+  {% if internet_total %}
+  <form method="post" action="{{ url_for('review_all') }}"
+        onsubmit="return confirm('Mark all {{ internet_total }} internet IPs as fine? They keep their automatic names and leave the inbox. New IPs will still show up here.')">
+    <input type="hidden" name="scope" value="internet">
+    <button class="secondary" type="submit">Mark all {{ internet_total }} as fine</button>
+  </form>
+  {% endif %}
+</div>
+{% if internet_total > internet|length %}<p class="sub">Showing the busiest {{ internet|length }}.</p>{% endif %}
 {{ inbox_table(internet, false) }}
 {% endblock %}

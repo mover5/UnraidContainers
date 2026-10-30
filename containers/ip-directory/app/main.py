@@ -197,19 +197,25 @@ def directory():
     )
 
 
-@app.route("/inbox")
-def inbox():
+def _inbox_from(lan):
+    """FROM/WHERE for one Inbox section (LAN or internet), with its parameters."""
     placeholders = ",".join("?" * len(resolver.AUTO_SOURCES))
     sql = f"""
-        SELECT i.*, t.sent7, t.recv7, t.bytes7 FROM ips i
-        JOIN ({_traffic_sql()}) t ON t.ip = i.ip
+        FROM ips i JOIN ({_traffic_sql()}) t ON t.ip = i.ip
         WHERE i.reviewed = 0 AND COALESCE(i.kind, '') NOT IN ({_NOT_DEVICE})
           AND i.source IN ({placeholders}) AND i.is_lan = ?
-        ORDER BY t.bytes7 DESC LIMIT 50
     """
-    lan = db.query(sql, (_since(7), *resolver.AUTO_SOURCES, 1))
-    internet = db.query(sql, (_since(7), *resolver.AUTO_SOURCES, 0))
-    return render_template("inbox.html", lan=lan, internet=internet)
+    return sql, (_since(7), *resolver.AUTO_SOURCES, 1 if lan else 0)
+
+
+@app.route("/inbox")
+def inbox():
+    sections = {}
+    for key, lan in (("lan", True), ("internet", False)):
+        sql, params = _inbox_from(lan)
+        sections[key] = db.query(f"SELECT i.*, t.sent7, t.recv7, t.bytes7 {sql} ORDER BY t.bytes7 DESC LIMIT 50", params)
+        sections[key + "_total"] = db.query_one(f"SELECT COUNT(*) AS n {sql}", params)["n"]
+    return render_template("inbox.html", **sections)
 
 
 @app.route("/ip/<ip>")
@@ -316,6 +322,17 @@ def delete_ip_label(ip):
     db.execute("DELETE FROM manual_ip WHERE ip = ?", (_valid_ip(ip),))
     refresher.apply_edits()
     return _back(url_for("ip_detail", ip=ip))
+
+
+@app.post("/inbox/review-all")
+def review_all():
+    """Mark every IP in one Inbox section as fine — all of them, not just the busiest shown."""
+    scope = request.form.get("scope")
+    if scope not in ("lan", "internet"):
+        abort(400)
+    sql, params = _inbox_from(scope == "lan")
+    db.execute(f"UPDATE ips SET reviewed = 1 WHERE ip IN (SELECT i.ip {sql})", params)
+    return redirect(url_for("inbox"))
 
 
 @app.post("/ip/<ip>/review")

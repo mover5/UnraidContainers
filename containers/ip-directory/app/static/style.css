@@ -114,6 +114,9 @@ button.secondary { background: var(--panel); color: var(--text); border-color: v
 button.danger { background: var(--panel); color: var(--danger); border-color: var(--border); }
 button.link { background: none; border: none; color: var(--accent); padding: 0; font-weight: 500; }
 form.inline { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0; }
+.section-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 24px 0 8px; }
+.section-head h2 { margin: 0; }
+.section-head form { margin-left: auto; }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
 .pager { display: flex; gap: 12px; justify-content: center; margin-top: 12px; color: var(--muted); }
 .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }

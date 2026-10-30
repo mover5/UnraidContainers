@@ -2,6 +2,7 @@ import ipaddress
 import logging
 import re
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlsplit
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
 from waitress import serve
@@ -107,7 +108,23 @@ def _valid_mac(mac):
 
 def _back(default):
     nxt = request.form.get("next") or ""
-    return redirect(nxt if nxt.startswith("/") and not nxt.startswith("//") else default)
+    parts = urlsplit(nxt)
+    local = (
+        nxt.startswith("/") and not parts.scheme and not parts.netloc
+        and "\\" not in nxt and not any(ord(ch) < 32 for ch in nxt) and not nxt.startswith("//")
+    )
+    return redirect(nxt if local else default)
+
+
+@app.before_request
+def same_origin_posts_only():
+    # No login, so stop other web pages from submitting edits through the viewer's browser.
+    if request.method != "POST":
+        return None
+    source = request.headers.get("Origin") or request.headers.get("Referer")
+    if source and urlsplit(source).netloc != request.host:
+        abort(403)
+    return None
 
 
 # -- pages --------------------------------------------------------------------------------------

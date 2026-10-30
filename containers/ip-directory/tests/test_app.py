@@ -137,3 +137,31 @@ def test_lan_labels_carry_mac_for_grafana(env):
     by_ip = {l["ip"]: l for l in written}
     assert by_ip["192.168.1.30"]["mac"] == "0c:42:a1:63:8c:ec"
     assert by_ip["50.82.218.165"]["mac"] is None
+
+
+def test_redirect_rejects_backslash_and_schemes(env):
+    _, _, client = env
+    for bad in ["/\\evil.example", "https://evil.example", "/\t/evil.example", "javascript:alert(1)"]:
+        resp = client.post("/ip/192.168.1.78/review", data={"next": bad})
+        assert resp.headers["Location"] == "/inbox", bad
+    resp = client.post("/ip/192.168.1.78/review", data={"next": "/ip/192.168.1.78"})
+    assert resp.headers["Location"] == "/ip/192.168.1.78"
+
+
+def test_cross_site_posts_rejected(env):
+    main, _, client = env
+    resp = client.post("/ip/8.8.8.8/label", data={"name": "pwned"}, headers={"Origin": "https://evil.example"})
+    assert resp.status_code == 403
+    assert main.db.query_one("SELECT * FROM manual_ip WHERE ip = '8.8.8.8'") is None
+    resp = client.post("/ip/8.8.8.8/label", data={"name": "ok"}, headers={"Origin": "http://localhost"})
+    assert resp.status_code == 302
+
+
+def test_errors_shown_in_ui_are_redacted(env):
+    main, _, _ = env
+    main.config.tautulli_api_key = "SECRETKEY123"
+    msg = main.refresher._redact(
+        "HTTPError: 401 Client Error: Unauthorized for url: http://tautulli:8181/api/v2?apikey=SECRETKEY123&cmd=get_history"
+    )
+    assert "SECRETKEY123" not in msg and "apikey" not in msg
+    assert "http://tautulli:8181/api/v2?***" in msg

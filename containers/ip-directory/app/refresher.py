@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+import re
 import threading
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -19,6 +20,9 @@ MAC_WINDOW_DAYS = 7
 LABEL_REWRITE_HOURS = 24
 KEEP_DAILY_DAYS = 90
 KEEP_MAC_DAYS = 30
+
+
+_QUERY = re.compile(r"\?[^\s'\")]+")
 
 
 def _parse(ts):
@@ -79,8 +83,16 @@ class Refresher:
             self.db.record_status(source, True, detail=detail or "")
             logger.info("%s: %s", source, detail)
         except Exception as e:  # one broken source must not stop the others
-            logger.exception("%s failed", source)
-            self.db.record_status(source, False, error=f"{type(e).__name__}: {e}")
+            logger.error("%s failed: %s", source, self._redact(f"{type(e).__name__}: {e}"))
+            self.db.record_status(source, False, error=self._redact(f"{type(e).__name__}: {e}"))
+
+    def _redact(self, text):
+        """Errors are shown in the UI (no login): drop secrets and URL query strings (Tautulli's key is one)."""
+        c = self.config
+        for secret in (c.influx_token, c.tautulli_api_key, c.adguard_password, c.maxmind_license_key):
+            if secret:
+                text = text.replace(secret, "***")
+        return _QUERY.sub("?***", text)
 
     # -- sFlow scan -----------------------------------------------------------------------------
 
@@ -296,8 +308,8 @@ class Refresher:
             self.db.record_status("labels", True, detail=f"{written} labels written, {count} IPs named")
             return written
         except Exception as e:
-            logger.exception("Writing labels failed")
-            self.db.record_status("labels", False, error=f"{type(e).__name__}: {e}")
+            logger.error("Writing labels failed: %s", self._redact(f"{type(e).__name__}: {e}"))
+            self.db.record_status("labels", False, error=self._redact(f"{type(e).__name__}: {e}"))
             return 0
 
     def _prune(self):

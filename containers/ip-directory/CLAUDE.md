@@ -45,6 +45,8 @@ Names from `auto`, `vendor`, `geoip`, `rdns` are "automatic" and feed the Inbox 
 
 ## Key decisions
 
+- **Runs on `lcarsnet`** and reaches InfluxDB/Tautulli by container name, so their (dynamic) container IPs don't matter.
+
 - **LAN devices are named by MAC.** An IP's MAC is the dominant `in_src_mac` among samples where it is the *source*
   over the last 7 days (`ip_mac_daily`). Majority vote matters: the switch emits stray one-off samples with the
   wrong MAC.
@@ -63,12 +65,12 @@ Names from `auto`, `vendor`, `geoip`, `rdns` are "automatic" and feed the Inbox 
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `INFLUX_URL` | `http://192.168.1.30:8186` | InfluxDB v2 |
+| `INFLUX_URL` | `http://InfluxDB:8086` | InfluxDB v2 — container name + internal port (container runs on `lcarsnet`) |
 | `INFLUX_TOKEN` | — | Read + write on the bucket (required) |
 | `INFLUX_ORG` / `INFLUX_BUCKET` | `LCARS` / `unraid` | |
 | `NETFLOW_MEASUREMENT` / `LABELS_MEASUREMENT` | `netflow` / `ip_labels` | |
 | `TAUTULLI_URL` / `TAUTULLI_API_KEY` | — | Optional |
-| `ADGUARD_URL` / `ADGUARD_USER` / `ADGUARD_PASSWORD` | — | Optional. AdGuard on macvlan needs Unraid's "Host access to custom networks" |
+| `ADGUARD_URL` / `ADGUARD_USER` / `ADGUARD_PASSWORD` | — | Optional. A `br0` (macvlan) AdGuard is unreachable from `lcarsnet` even with "Host access to custom networks"; attach AdGuard to `lcarsnet` as a second network |
 | `MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY` | — | Optional |
 | `REFRESH_MINUTES` | `15` | |
 | `INITIAL_SCAN_DAYS` | `7` | How far back the first scan reaches |

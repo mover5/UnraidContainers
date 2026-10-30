@@ -13,7 +13,7 @@ class Config:
         # How far back the very first scan of the sFlow data reaches.
         self.initial_scan_days = int(_env("INITIAL_SCAN_DAYS", "7"))
 
-        self.influx_url = _env("INFLUX_URL", "http://192.168.1.30:8186")
+        self.influx_url = _env("INFLUX_URL", "http://InfluxDB:8086")
         self.influx_token = _env("INFLUX_TOKEN")
         self.influx_org = _env("INFLUX_ORG", "LCARS")
         self.influx_bucket = _env("INFLUX_BUCKET", "unraid")

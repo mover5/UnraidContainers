@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { EVENT_FIELDS, type Flight } from '../lib/types';
-import { nowClock } from '../lib/time';
+import { EVENT_FIELDS, type EventKey, type Flight } from '../lib/types';
+import { nowClock, smartStamp } from '../lib/time';
 import { IconClock } from './icons';
 
 export default function LiveLogger({
@@ -10,6 +10,16 @@ export default function LiveLogger({
   flight: Flight;
   onPatch: (patch: Partial<Flight>) => Promise<void>;
 }) {
+  // Last stamp that was timezone-corrected, so the user can see it and undo it.
+  const [adjusted, setAdjusted] = useState<{ key: EventKey; value: string; raw: string; hours: number } | null>(null);
+
+  const stamp = (key: EventKey) => {
+    const raw = nowClock();
+    const { value, shiftHours } = smartStamp(flight, key, raw);
+    setAdjusted(shiftHours ? { key, value, raw, hours: shiftHours } : null);
+    return onPatch({ [key]: value } as Partial<Flight>);
+  };
+
   return (
     <div className="card p-4">
       <div className="mb-3 flex items-center justify-between">
@@ -22,9 +32,20 @@ export default function LiveLogger({
             key={ev.key}
             label={ev.label}
             value={flight[ev.key]}
-            onStamp={() => onPatch({ [ev.key]: nowClock() } as Partial<Flight>)}
-            onSet={(v) => onPatch({ [ev.key]: v } as Partial<Flight>)}
-            onClear={() => onPatch({ [ev.key]: null } as Partial<Flight>)}
+            adjustment={
+              adjusted?.key === ev.key && adjusted.value === flight[ev.key]
+                ? { hours: adjusted.hours, raw: adjusted.raw }
+                : null
+            }
+            onStamp={() => stamp(ev.key)}
+            onSet={(v) => {
+              setAdjusted(null);
+              onPatch({ [ev.key]: v } as Partial<Flight>);
+            }}
+            onClear={() => {
+              setAdjusted(null);
+              onPatch({ [ev.key]: null } as Partial<Flight>);
+            }}
           />
         ))}
       </div>
@@ -35,12 +56,14 @@ export default function LiveLogger({
 function EventButton({
   label,
   value,
+  adjustment,
   onStamp,
   onSet,
   onClear,
 }: {
   label: string;
   value: string | null;
+  adjustment: { hours: number; raw: string } | null;
   onStamp: () => void;
   onSet: (v: string) => void;
   onClear: () => void;
@@ -67,6 +90,15 @@ function EventButton({
           />
         ) : (
           <span className="font-mono text-2xl font-semibold text-good tabular-nums">{value}</span>
+        )}
+        {adjustment && !editing && (
+          <span className="mt-1 text-[11px] text-warn">
+            Phone said {adjustment.raw} · shifted {adjustment.hours > 0 ? '+' : ''}
+            {adjustment.hours}h for TZ{' '}
+            <button className="underline hover:text-sky" onClick={() => onSet(adjustment.raw)}>
+              Undo
+            </button>
+          </span>
         )}
         <div className="mt-2 flex gap-3 text-[11px] text-muted">
           <button className="hover:text-sky" onClick={() => setEditing((v) => !v)}>

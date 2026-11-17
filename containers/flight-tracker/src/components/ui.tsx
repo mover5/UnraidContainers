@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { IconArrowRight } from './icons';
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
@@ -70,4 +70,63 @@ export function fmtDate(iso: string, opts: Intl.DateTimeFormatOptions = { month:
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
   if (!y || !m || !d) return 'Invalid Date';
   return new Date(y, m - 1, d).toLocaleDateString(undefined, opts);
+}
+
+/** Parse a TZ-offset draft ("-2", "+5.5", "3") -> hours, or null if incomplete/invalid. */
+function parseHours(s: string): number | null {
+  const t = s.trim();
+  if (!/^[+-]?\d+(\.\d+)?$/.test(t)) return null;
+  return Number(t);
+}
+
+/**
+ * Hours input for the timezone change. Keeps its own text draft so the field
+ * can be emptied and a lone "-" typed (a controlled type=number input snaps
+ * back to 0). Only commits parseable values; a blank field commits 0 on blur.
+ * The ± button flips the sign, since phone number pads often lack a minus key.
+ */
+export function TzChangeInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [draft, setDraft] = useState(String(value));
+
+  // Follow outside changes (sync, another device) unless the draft already means that value.
+  useEffect(() => {
+    setDraft((d) => (parseHours(d) === value ? d : String(value)));
+  }, [value]);
+
+  const edit = (next: string) => {
+    setDraft(next);
+    const n = parseHours(next);
+    if (n !== null && n !== value) onChange(n);
+  };
+
+  const flip = () => {
+    const t = draft.trim();
+    edit(t.startsWith('-') ? t.slice(1) : '-' + t.replace(/^\+/, ''));
+  };
+
+  return (
+    <div className="flex gap-2">
+      <button type="button" className="btn-ghost shrink-0 px-3 font-mono" onClick={flip} aria-label="Flip sign">
+        ±
+      </button>
+      <input
+        type="text"
+        inputMode="decimal"
+        className="input min-w-0 flex-1"
+        placeholder="0"
+        value={draft}
+        onChange={(e) => edit(e.target.value)}
+        onFocus={(e) => e.target.select()}
+        onBlur={() => {
+          const t = draft.trim();
+          if (t === '' || t === '-' || t === '+') {
+            if (value !== 0) onChange(0);
+            setDraft('0');
+          } else {
+            setDraft(String(parseHours(t) ?? value));
+          }
+        }}
+      />
+    </div>
+  );
 }

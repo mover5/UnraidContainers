@@ -14,7 +14,7 @@ import {
   taxiOut,
   vsProjected,
 } from '../lib/time';
-import { CarrierBadge, Spinner, fmtDate } from '../components/ui';
+import { CarrierBadge, Spinner, TzChangeInput, fmtDate } from '../components/ui';
 import { IconBack, IconCheck, IconTrash } from '../components/icons';
 import LiveLogger from '../components/LiveLogger';
 import NotesThread from '../components/NotesThread';
@@ -163,12 +163,7 @@ export default function FlightDetail() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div>
             <label className="label">TZ change (hours)</label>
-            <input
-              type="number"
-              className="input"
-              value={flight.tz_change}
-              onChange={(e) => patch({ tz_change: Number(e.target.value) || 0 })}
-            />
+            <TzChangeInput value={flight.tz_change} onChange={(v) => patch({ tz_change: v })} />
             <p className="mt-1 text-xs text-muted">Destination offset − origin. West = negative (ORD→SEA = −2), east = positive.</p>
           </div>
           <div>

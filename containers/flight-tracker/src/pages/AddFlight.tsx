@@ -5,6 +5,7 @@ import { store } from '../lib/store';
 import { allPeople } from '../lib/analytics';
 import type { NewFlight } from '../lib/types';
 import PassengerEditor from '../components/PassengerEditor';
+import { TzChangeInput } from '../components/ui';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -146,12 +147,7 @@ export default function AddFlight() {
           </div>
           <div>
             <label className="label">TZ change (h)</label>
-            <input
-              type="number"
-              className="input"
-              value={form.tz_change}
-              onChange={(e) => set('tz_change', Number(e.target.value) || 0)}
-            />
+            <TzChangeInput value={form.tz_change} onChange={(v) => set('tz_change', v)} />
             <p className="mt-1 text-xs text-muted">Destination offset − origin. West = negative (ORD→SEA = −2), east = positive.</p>
           </div>
         </div>

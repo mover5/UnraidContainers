@@ -15,7 +15,10 @@ flights, packaged as a single Docker container that talks to your own Postgres.
 
 - **Live logging** — big tap-to-stamp buttons for **Gate Push · Takeoff ·
   Land · Gate Arrive** that record the current time in one touch (with manual
-  edit / clear). Designed for use on your phone during a flight.
+  edit / clear). Designed for use on your phone during a flight. If your phone
+  hasn't switched to the destination timezone yet, Land / Gate Arrive stamps are
+  shifted by the flight's TZ change (whole hours only) when that lands much
+  closer to the expected time; the button shows what the phone said, with Undo.
 - **Add flights** — a quick form for the high-level info.
 - **Notes over time** — a timestamped notes thread per flight.
 - **Dashboard** — on-time rate, average taxi-out, taxi time by airport,

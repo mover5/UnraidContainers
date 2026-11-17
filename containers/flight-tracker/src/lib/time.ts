@@ -1,4 +1,4 @@
-import type { Flight, ClockTime } from './types';
+import type { Flight, ClockTime, EventKey } from './types';
 
 /** Parse "HH:MM" -> minutes since midnight, or null. */
 export function toMinutes(t: ClockTime): number | null {
@@ -121,3 +121,65 @@ export function fmtDelay(min: number | null | undefined): string {
 
 /** A flight is "complete" once it has reached the gate at destination. */
 export const isComplete = (f: Flight) => Boolean(f.gate_arrive);
+
+// ---- Timezone-aware stamping ----
+
+const fromMinutes = (m: number): string => {
+  const w = ((Math.round(m) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(w / 60)).padStart(2, '0')}:${String(w % 60).padStart(2, '0')}`;
+};
+
+/** Typical taxi allowances used only to estimate when an event "should" happen. */
+const TAXI_OUT_EST = 15;
+const TAXI_IN_EST = 8;
+
+/**
+ * Best guess at when an event should happen, in that event's local time
+ * (origin for push/takeoff, destination for land/arrive). Prefers anchoring
+ * on the previous logged event, falling back to the schedule. null if unknown.
+ */
+export function expectedClock(f: Flight, key: EventKey): number | null {
+  const dep = toMinutes(f.delayed_departure ?? f.scheduled_departure);
+  const arr = toMinutes(f.delayed_arrival ?? f.scheduled_arrival);
+  const push = toMinutes(f.gate_push);
+  const off = toMinutes(f.takeoff);
+  const land = toMinutes(f.land);
+  const proj = projectedMinutes(f);
+  switch (key) {
+    case 'gate_push':
+      return dep;
+    case 'takeoff':
+      if (push !== null) return push + TAXI_OUT_EST;
+      return dep !== null ? dep + TAXI_OUT_EST : null;
+    case 'land':
+      if (off !== null && proj !== null) return off + proj + f.tz_change * 60;
+      return arr !== null ? arr - TAXI_IN_EST : null;
+    case 'gate_arrive':
+      if (land !== null) return land + TAXI_IN_EST;
+      return arr;
+  }
+}
+
+/**
+ * Pick the clock time to stamp for an event, correcting for a phone that
+ * hasn't switched timezones yet (landing / reaching the gate while it still
+ * shows origin time). Push and takeoff happen at the origin, where the phone
+ * is already right, so they're never shifted — that also keeps an unlogged
+ * departure delay from being mistaken for a TZ error. For destination events
+ * the only shift considered is +tz_change rounded to whole hours (minutes never
+ * change), and it's applied only when it lands clearly closer (>30m) to the
+ * expected time than the raw clock does. Returns the clock and hours shifted.
+ */
+export function smartStamp(f: Flight, key: EventKey, now: string = nowClock()): { value: string; shiftHours: number } {
+  const keep = { value: now, shiftHours: 0 };
+  if (key !== 'land' && key !== 'gate_arrive') return keep;
+  const raw = toMinutes(now);
+  const expected = expectedClock(f, key);
+  const tz = Math.round(f.tz_change);
+  if (raw === null || expected === null || tz === 0) return keep;
+
+  const dist = (m: number) => Math.abs(signedDiff(fromMinutes(expected), fromMinutes(m))!);
+  const shifted = raw + tz * 60;
+  if (dist(shifted) < dist(raw) - 30) return { value: fromMinutes(shifted), shiftHours: tz };
+  return keep;
+}

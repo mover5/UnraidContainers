@@ -103,6 +103,17 @@ export const deleteProject = (id: string) => updateProject(id, { deleted: true }
 
 export const dirtyIds = () => [...dirty];
 export const getRaw = (id: string) => all.find((p) => p.id === id) ?? null;
+/**
+ * Accept the server's copy of a project as-is (used after a successful push
+ * when nothing changed locally meanwhile — e.g. the server capped a stamp from
+ * a fast clock, which would otherwise look like an unsynced local change forever).
+ */
+export function replaceFromServer(doc: Project) {
+  all = all.some((p) => p.id === doc.id) ? all.map((p) => (p.id === doc.id ? doc : p)) : [...all, doc];
+  dirty.delete(doc.id);
+  commit();
+}
+
 export function clearDirty(id: string) {
   dirty.delete(id);
   commit();

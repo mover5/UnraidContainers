@@ -47,3 +47,13 @@ test('rejects bad ids and junk; unknown API paths 404', async () => {
     assert.equal((await fetch(`${base}/nope`)).status, 404);
   });
 });
+
+test('caps timestamps from a device whose clock is far ahead', async () => {
+  await withServer(async (base) => {
+    const future = Date.now() + 365 * 24 * 3600 * 1000;
+    const doc = { id: 'p2', name: 'Hat', stamps: stamps(future) };
+    const saved = await (await put(base, doc)).json();
+    for (const t of Object.values(saved.stamps)) assert.ok(t <= Date.now() + 10 * 60 * 1000);
+    assert.ok(saved.created_at <= Date.now() + 10 * 60 * 1000);
+  });
+});

@@ -77,9 +77,12 @@ async function pass() {
     for (const id of store.dirtyIds()) {
       const doc = store.getRaw(id);
       if (!doc) continue;
+      const sent = JSON.stringify(doc.stamps);
       try {
         const saved = await req<Project>(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(doc) });
-        store.absorb([saved], { full: false });
+        // Untouched since we sent it: the server's merged copy is authoritative.
+        if (JSON.stringify(store.getRaw(id)?.stamps) === sent) store.replaceFromServer(saved);
+        else store.absorb([saved], { full: false });
       } catch (e) {
         // A 4xx means the server will never accept this copy; don't retry forever.
         if (e instanceof HttpError && e.status >= 400 && e.status < 500) {

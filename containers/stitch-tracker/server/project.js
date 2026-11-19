@@ -11,6 +11,10 @@ const int = (v, min, max, dflt) => {
 const ID = /^[A-Za-z0-9-]{1,64}$/;
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
+// A device whose clock runs ahead would otherwise win every merge until real
+// time catches up. Cap stamps at the server's clock plus a little skew.
+export const MAX_CLOCK_SKEW_MS = 10 * 60 * 1000;
+
 export const isValidId = (id) => typeof id === 'string' && ID.test(id);
 
 /** Coerce an incoming document into a well-formed project, or null if unusable. */
@@ -30,7 +34,8 @@ export function sanitize(doc, id) {
       text: str(s.text, 2000),
     }));
   const stamps = {};
-  for (const f of SYNC_FIELDS) stamps[f] = int(doc.stamps?.[f], 0, Number.MAX_SAFE_INTEGER, 0);
+  const maxStamp = Date.now() + MAX_CLOCK_SKEW_MS;
+  for (const f of SYNC_FIELDS) stamps[f] = int(doc.stamps?.[f], 0, maxStamp, 0);
   return {
     id,
     name: str(doc.name, 200),
@@ -41,7 +46,7 @@ export function sanitize(doc, id) {
     rows_done: int(doc.rows_done, 0, 10_000_000, 0),
     status: doc.status === 'finished' ? 'finished' : 'active',
     deleted: doc.deleted === true,
-    created_at: int(doc.created_at, 0, Number.MAX_SAFE_INTEGER, Date.now()),
+    created_at: int(doc.created_at, 0, maxStamp, Date.now()),
     stamps,
   };
 }

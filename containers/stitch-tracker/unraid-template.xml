@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>stitch-tracker</Name>
+  <Repository>ghcr.io/mover5/stitch-tracker:latest</Repository>
+  <Registry>https://ghcr.io/mover5/stitch-tracker</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mover5/UnraidContainers/issues</Support>
+  <Overview>
+    Track knitting projects row by row. Add a project with notes and instructions, paste in the
+    pattern (stripes, color changes, per-row instructions), then tap "Row done" as you go. Works
+    offline on your phone and syncs when you're back online. Stores everything in a local SQLite
+    file (map the /data path to persist it) — no external database needed.
+  </Overview>
+  <Category>Tools: Productivity: Other:</Category>
+  <Description>
+    A mobile-first knitting row counter and pattern tracker. Each project has a description,
+    notes/instructions, a yarn color palette, and a pattern made of steps (e.g. "8 Purple",
+    "Row 5: k2, p2 across"). Paste a pattern from your notes and it's parsed into steps and
+    colors automatically. While knitting, a big "Row done" button advances you through the
+    pattern, warns you on the last row before a color change, and tells you which yarn to pick
+    up next. Installable as a PWA; edits and row taps are saved on the device first and synced
+    to this container when it's reachable. Data lives in a single SQLite file under /data.
+  </Description>
+  <Icon>https://raw.githubusercontent.com/mover5/UnraidContainers/main/containers/stitch-tracker/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <DonateImg/>
+
+  <!-- Web UI -->
+  <Config Name="Web UI Port" Target="8080" Default="8080" Mode="tcp" Description="Port for the Stitch Tracker web app" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+
+  <!-- Persistent data -->
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/stitch-tracker" Mode="rw" Description="Where the SQLite database (stitch.db) is stored. Keep this on persistent storage." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/stitch-tracker</Config>
+</Container>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="ball"><circle cx="30" cy="36" r="18"/></clipPath>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#1c1618"/>
+  <!-- needles, crossed behind the ball -->
+  <g stroke-linecap="round">
+    <path d="M18 12l34 34" stroke="#d9cfc9" stroke-width="2.6"/>
+    <path d="M50 10L20 48" stroke="#f5ece6" stroke-width="2.6"/>
+    <circle cx="17" cy="11" r="2.6" fill="#9cc49a"/>
+    <circle cx="51" cy="9" r="2.6" fill="#9cc49a"/>
+  </g>
+  <circle cx="30" cy="36" r="18" fill="#f0a77c"/>
+  <g clip-path="url(#ball)" fill="none" stroke="#b9663e" stroke-width="1.7" stroke-linecap="round">
+    <!-- one band of wraps -->
+    <path d="M10 30c8-6 24-10 40-4"/>
+    <path d="M10 35c8-6 24-10 40-4"/>
+    <path d="M10 40c8-6 24-10 40-4"/>
+    <!-- a crossing band -->
+    <path d="M22 18c-4 10-2 26 6 36"/>
+    <path d="M27 17c-4 10-2 26 6 36"/>
+    <path d="M32 17c-4 10-2 26 6 36"/>
+  </g>
+  <circle cx="30" cy="36" r="18" fill="none" stroke="#b9663e" stroke-width="1.2" opacity="0.6"/>
+  <!-- loose tail -->
+  <path d="M44 47c4 3 7 2 9 6s-1 6 2 7" fill="none" stroke="#f0a77c" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

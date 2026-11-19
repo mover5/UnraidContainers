@@ -1,0 +1,16 @@
+{
+  "name": "stitch-tracker-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API server for Stitch Tracker — serves the built frontend and a sync API backed by a local SQLite file.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.21.2"
+  }
+}
